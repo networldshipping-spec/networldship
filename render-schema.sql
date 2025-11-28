@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS shipments (
     invoice_filename VARCHAR(255),
     receipt_path VARCHAR(500),
     receipt_filename VARCHAR(255),
+    package_image_path VARCHAR(500),
+    package_image_filename VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
