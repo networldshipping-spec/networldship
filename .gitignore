@@ -10,6 +10,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+RENDER_DATABASE_CREDENTIALS.md
 
 # Uploads
 uploads/
