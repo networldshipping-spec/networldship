@@ -455,10 +455,10 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
         // Store notification in database
         const result = await pool.query(
             `INSERT INTO notifications 
-            (shipment_id, tracking_number, recipient_type, recipient_email, subject, message, status) 
-            VALUES ($1, $2, $3, $4, $5, $6, 'sent') 
+            (shipment_id, recipient_email, subject, message, status) 
+            VALUES ($1, $2, $3, $4, 'sent') 
             RETURNING *`,
-            [shipment_id, tracking_number, recipient_type, recipient_email, subject, message]
+            [shipment_id, recipient_email, subject, message]
         );
         
         // Send real email using Nodemailer
