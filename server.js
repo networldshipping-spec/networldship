@@ -508,13 +508,13 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
                 
             } catch (emailError) {
                 console.error('❌ Error sending email:', emailError.message);
+                console.error('Full error:', emailError);
                 
-                // Still return success for database record, but indicate email issue
-                res.json({ 
-                    success: true, 
-                    message: 'Notification logged but email failed: ' + emailError.message,
-                    data: result.rows[0],
-                    emailSent: false
+                // Return error to frontend
+                res.status(500).json({ 
+                    success: false, 
+                    message: 'Failed to send email: ' + emailError.message,
+                    error: emailError.message
                 });
             }
         } else {
