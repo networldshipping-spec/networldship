@@ -471,9 +471,6 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
         // Send real email using Nodemailer
         if (emailTransporter) {
             try {
-                // Verify transporter first
-                await emailTransporter.verify();
-                
                 const emailHTML = `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
                         <div style="white-space: pre-line; padding: 20px; background: #f8fafc; border-radius: 8px; margin-bottom: 20px; line-height: 1.6;">
@@ -615,15 +612,7 @@ app.get('/api/conversations/:trackingNumber', requireAuth, async (req, res) => {
 app.post('/api/conversations/:trackingNumber/read', async (req, res) => {
     try {
         const { trackingNumber } = req.params;
-        await pool.query(
-            `UPDATE conversations c
-             SET is_read = TRUE 
-             FROM shipments s
-             WHERE c.shipment_id = s.id 
-             AND s.tracking_number = $1 
-             AND c.sender_type != 'admin'`,
-            [trackingNumber]
-        );
+        // is_read column removed from schema - no longer tracking read status
         res.json({ success: true });
     } catch (error) {
         console.error('Error marking conversation as read:', error);
@@ -742,7 +731,7 @@ app.get('/api/conversations/unread/count', requireAuth, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT COUNT(*) as count FROM conversations 
-             WHERE is_read = FALSE AND sender_type != 'admin'`
+             WHERE sender_type != 'admin'`
         );
         res.json({ count: parseInt(result.rows[0].count) });
     } catch (error) {
