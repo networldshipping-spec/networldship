@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NET WORLD SHIPPING - Admin Dashboard</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <span>NET WORLD SHIPPING</span>
+            </div>
+            <p class="admin-label">Admin Panel</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#shipments" class="nav-item" data-section="shipments">
+                <i class="fas fa-box"></i>
+                <span>Shipments</span>
+            </a>
+            <a href="#tracking" class="nav-item" data-section="tracking">
+                <i class="fas fa-route"></i>
+                <span>Tracking Events</span>
+            </a>
+            <a href="#create" class="nav-item" data-section="create">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Shipment</span>
+            </a>
+            <a href="#receipts" class="nav-item" data-section="receipts">
+                <i class="fas fa-receipt"></i>
+                <span>Receipts</span>
+            </a>
+            <a href="#contact" class="nav-item" data-section="contact">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+            <a href="#" class="nav-item" onclick="window.open('inbox.html', '_blank'); return false;">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+                <span class="chat-badge" id="chatNavBadge" style="display: none; background: #ef4444; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">0</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <button onclick="handleLogout()" class="btn-logout" style="width: 100%; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+            <a href="index.html" class="btn-back" style="margin-top: 10px;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Website</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="user-menu">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="inboxBadge">0</span>
+                </div>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="usernameDisplay">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="content-section active">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalShipments">0</h3>
+                        <p>Total Shipments</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="inTransit">0</h3>
+                        <p>In Transit</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="delivered">0</h3>
+                        <p>Delivered</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="pending">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-card">
+                    <h3>Recent Activity</h3>
+                    <div id="activityLog" class="activity-log">
+                        <!-- Activity items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shipments Section -->
+        <section id="shipments-section" class="content-section">
+            <div class="section-header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchShipments" placeholder="Search by tracking number, origin, or destination...">
+                </div>
+                <button class="btn-primary" onclick="showCreateForm()">
+                    <i class="fas fa-plus"></i> New Shipment
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tracking Number</th>
+                            <th>Carrier</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Status</th>
+                            <th>Est. Delivery</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shipmentsTableBody">
+                        <!-- Shipments will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tracking Events Section -->
+        <section id="tracking-section" class="content-section">
+            <div class="section-header">
+                <input type="text" id="trackingSearch" class="form-input" placeholder="Enter Tracking Number">
+                <button class="btn-primary" onclick="loadTrackingEvents()">
+                    <i class="fas fa-search"></i> Load Events
+                </button>
+            </div>
+
+            <div id="trackingEventsContainer" class="events-container">
+                <div class="empty-state">
+                    <i class="fas fa-route"></i>
+                    <p>Enter a tracking number to view events</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Create Shipment Section -->
+        <section id="create-section" class="content-section">
+            <div class="form-card">
+                <h2><i class="fas fa-plus-circle"></i> Create New Shipment</h2>
+                <form id="createShipmentForm" class="admin-form">
+                    <!-- Basic Shipment Info -->
+                    <h3 class="form-section-title"><i class="fas fa-box"></i> Shipment Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-barcode"></i> Tracking Number *</label>
+                            <input type="text" name="tracking_number" required pattern="TRK[0-9]{9}" 
+                                   placeholder="TRK123456789">
+                            <small>Format: TRK + 9 digits</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-truck"></i> Carrier *</label>
+                            <select name="carrier" required>
+                                <option value="">Select Carrier</option>
+                                <option value="NET WORLD SHIPPING EXPRESS">NET WORLD SHIPPING EXPRESS</option>
+                                <option value="Express Shipping Co.">Express Shipping Co.</option>
+                                <option value="Global Express">Global Express</option>
+                                <option value="Pacific Cargo">Pacific Cargo</option>
+                                <option value="Atlantic Freight">Atlantic Freight</option>
+                                <option value="Asia Express">Asia Express</option>
+                                <option value="Continental Cargo">Continental Cargo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> Origin *</label>
+                            <input type="text" name="origin" required placeholder="New York, USA">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> Destination *</label>
+                            <input type="text" name="destination" required placeholder="London, UK">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-location-arrow"></i> Current Location</label>
+                            <input type="text" name="current_location" placeholder="Will default to origin">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-info-circle"></i> Status *</label>
+                            <select name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="in-transit">In Transit</option>
+                                <option value="delivered">Delivered</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Estimated Delivery</label>
+                            <input type="date" name="estimated_delivery">
+                        </div>
+                    </div>
+
+                    <!-- Sender Information -->
+                    <h3 class="form-section-title"><i class="fas fa-user"></i> Sender Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Full Name *</label>
+                            <input type="text" name="sender_name" required placeholder="John Smith">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email *</label>
+                            <input type="email" name="sender_email" required placeholder="john.smith@email.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Phone Number *</label>
+                            <input type="tel" name="sender_phone" required placeholder="+1-555-0101">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-city"></i> City *</label>
+                            <input type="text" name="sender_city" required placeholder="New York">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-globe"></i> Country *</label>
+                            <input type="text" name="sender_country" required placeholder="USA">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marked-alt"></i> Address *</label>
+                            <input type="text" name="sender_address" required placeholder="123 Main Street">
+                        </div>
+                    </div>
+
+                    <!-- Receiver Information -->
+                    <h3 class="form-section-title"><i class="fas fa-user-tag"></i> Receiver Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Full Name *</label>
+                            <input type="text" name="receiver_name" required placeholder="Jane Doe">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email *</label>
+                            <input type="email" name="receiver_email" required placeholder="jane.doe@email.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Phone Number *</label>
+                            <input type="tel" name="receiver_phone" required placeholder="+44-20-1234-5678">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-city"></i> City *</label>
+                            <input type="text" name="receiver_city" required placeholder="London">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-globe"></i> Country *</label>
+                            <input type="text" name="receiver_country" required placeholder="UK">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marked-alt"></i> Address *</label>
+                            <input type="text" name="receiver_address" required placeholder="456 Oxford Street">
+                        </div>
+                    </div>
+
+                    <!-- Package Details -->
+                    <h3 class="form-section-title"><i class="fas fa-box-open"></i> Package Details</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-weight"></i> Weight (kg)</label>
+                            <input type="number" name="package_weight" step="0.01" placeholder="5.5">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-ruler-combined"></i> Dimensions (LxWxH)</label>
+                            <input type="text" name="package_dimensions" placeholder="30x20x15 cm">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-dollar-sign"></i> Shipping Cost</label>
+                            <input type="number" name="shipping_cost" step="0.01" placeholder="150.00">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-info-circle"></i> Package Description</label>
+                            <input type="text" name="package_description" placeholder="Electronics - Laptop">
+                        </div>
+                    </div>
+
+                    <!-- Document Upload -->
+                    <h3 class="form-section-title"><i class="fas fa-image"></i> Package Image (Optional)</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-camera"></i> Package Photo</label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="packageImage" name="package_image" accept=".jpg,.jpeg,.png" 
+                                       class="file-input">
+                                <label for="packageImage" class="file-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose Package Image</span>
+                                </label>
+                                <span id="packageImageName" class="file-name"></span>
+                            </div>
+                            <small>Supported: JPG, PNG (Max 5MB) - Optional</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="reset" class="btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Create Shipment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Receipts Section -->
+        <section id="receipts-section" class="content-section">
+            <div class="receipts-header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchReceipts" placeholder="Search by tracking number...">
+                </div>
+                <button class="btn-primary" onclick="generateAllReceipts()">
+                    <i class="fas fa-file-pdf"></i> Generate All Receipts
+                </button>
+            </div>
+
+            <div class="receipts-grid" id="receiptsGrid">
+                <div class="empty-state">
+                    <i class="fas fa-receipt"></i>
+                    <p>No shipments available</p>
+                    <small>Create shipments to generate receipts</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact-section" class="content-section">
+            <div class="contact-container">
+                <div class="contact-info-panel">
+                    <h3><i class="fas fa-building"></i> Company Information</h3>
+                    <div class="company-info">
+                        <div class="info-item">
+                            <label>Company Name</label>
+                            <p>NET WORLD SHIPPING</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Company Email</label>
+                            <p>support@networldshipping.com</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Phone</label>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+
+                    <div class="notification-templates">
+                        <h4><i class="fas fa-bell"></i> Notification Templates</h4>
+                        <div class="template-list">
+                            <div class="template-item">
+                                <strong>Shipment Created</strong>
+                                <p>Your shipment #{tracking_number} has been created and is being processed.</p>
+                            </div>
+                            <div class="template-item">
+                                <strong>Status Update</strong>
+                                <p>Your shipment #{tracking_number} status has been updated to: {status}</p>
+                            </div>
+                            <div class="template-item">
+                                <strong>Delivered</strong>
+                                <p>Your shipment #{tracking_number} has been successfully delivered!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-panel">
+                    <h3><i class="fas fa-envelope"></i> Send Email Notification</h3>
+                    
+                    <div class="search-shipment">
+                        <label>Search Shipment</label>
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="contactSearchTracking" placeholder="Enter tracking number...">
+                        </div>
+                    </div>
+
+                    <div id="shipmentContactInfo" class="shipment-contact-info" style="display: none;">
+                        <div class="contact-recipients">
+                            <div class="recipient-card">
+                                <h4><i class="fas fa-user"></i> Sender</h4>
+                                <p class="recipient-name" id="senderName">-</p>
+                                <p class="recipient-email" id="senderEmail">-</p>
+                                <button class="btn-outline" onclick="selectRecipient('sender')">
+                                    <i class="fas fa-check"></i> Select
+                                </button>
+                            </div>
+                            <div class="recipient-card">
+                                <h4><i class="fas fa-user"></i> Receiver</h4>
+                                <p class="recipient-name" id="receiverName">-</p>
+                                <p class="recipient-email" id="receiverEmail">-</p>
+                                <button class="btn-outline" onclick="selectRecipient('receiver')">
+                                    <i class="fas fa-check"></i> Select
+                                </button>
+                            </div>
+                        </div>
+
+                        <form id="contactForm" class="admin-form">
+                            <input type="hidden" id="selectedShipmentId" name="shipment_id">
+                            <input type="hidden" id="selectedRecipientType" name="recipient_type">
+                            
+                            <div class="form-group">
+                                <label><i class="fas fa-user"></i> To</label>
+                                <input type="email" id="recipientEmail" name="recipient_email" readonly required>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-tag"></i> Subject</label>
+                                <input type="text" id="emailSubject" name="subject" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-list"></i> Email Template</label>
+                                <select id="emailTemplate" name="template">
+                                    <option value="">Custom Message</option>
+                                    <option value="created">Shipment Created</option>
+                                    <option value="update">Status Update</option>
+                                    <option value="delivered">Delivered</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-align-left"></i> Message</label>
+                                <textarea id="emailMessage" name="message" rows="8" required placeholder="Enter your message here..."></textarea>
+                            </div>
+
+                            <div class="receipt-notice" id="receiptNotice" style="display: none;">
+                                <i class="fas fa-file-invoice"></i>
+                                <div>
+                                    <strong>Receipt Included</strong>
+                                    <p>A professional shipment receipt will be automatically attached to this email with complete sender/receiver details and shipping costs.</p>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-primary btn-full">
+                                <i class="fas fa-paper-plane"></i> Send Email
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="noShipmentSelected" class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>Search for a shipment to send notifications</p>
+                        <small>Enter tracking number above to get started</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notification-history">
+                <h3><i class="fas fa-history"></i> Notification History</h3>
+                <div class="notifications-table-container">
+                    <table class="notifications-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Tracking Number</th>
+                                <th>Recipient</th>
+                                <th>Type</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notificationsTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-row">No notifications sent yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section id="chat-section" class="content-section">
+            <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 40px; text-align: center;">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">💬</div>
+                    <h2 style="margin: 0 0 12px 0; font-size: 24px; color: #1f2937;">Customer Conversations</h2>
+                    <p style="margin: 0 0 24px 0; font-size: 14px; color: #6b7280;">
+                        View and manage all customer email conversations and replies
+                    </p>
+                    <button onclick="window.open('inbox.html', '_blank')" style="
+                        background: #3b82f6;
+                        color: white;
+                        border: none;
+                        padding: 14px 32px;
+                        border-radius: 8px;
+                        font-size: 15px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 10px;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open Inbox
+                    </button>
+                    
+                    <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: left;">
+                        <div style="padding: 20px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                            <div style="font-size: 32px; font-weight: 700; color: #3b82f6;" id="chatStatsTotal">0</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 4px;">Total Conversations</div>
+                        </div>
+                        <div style="padding: 20px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <div style="font-size: 32px; font-weight: 700; color: #ef4444;" id="chatStatsUnread">0</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 4px;">Unread Messages</div>
+                        </div>
+                        <div style="padding: 20px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
+                            <div style="font-size: 32px; font-weight: 700; color: #22c55e;" id="chatStatsToday">0</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 4px;">Messages Today</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 32px; padding: 20px; background: #eff6ff; border-radius: 8px; text-align: left;">
+                        <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #1f2937; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-info-circle" style="color: #3b82f6;"></i>
+                            Quick Tips
+                        </h4>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #6b7280; line-height: 1.8;">
+                            <li>Customer replies appear in the inbox automatically (when configured)</li>
+                            <li>Conversations are grouped by tracking number</li>
+                            <li>Click the bell icon anytime to check for new messages</li>
+                            <li>Replies are sent directly from the inbox interface</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content modal-receipt">
+            <div class="modal-header">
+                <h3><i class="fas fa-receipt"></i> Shipment Receipt</h3>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn-primary" onclick="printReceipt()">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button class="btn-close" onclick="closeReceiptModal()">&times;</button>
+                </div>
+            </div>
+            <div id="receiptContent" class="receipt-content">
+                <!-- Receipt will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
+            <p>Are you sure you want to delete this shipment? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Shipment Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Edit Shipment</h3>
+                <button class="btn-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editShipmentForm" class="admin-form">
+                <input type="hidden" id="editShipmentId" name="id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-barcode"></i> Tracking Number</label>
+                        <input type="text" id="editTrackingNumber" name="tracking_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-truck"></i> Carrier</label>
+                        <input type="text" id="editCarrier" name="carrier" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Origin</label>
+                        <input type="text" id="editOrigin" name="origin" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Destination</label>
+                        <input type="text" id="editDestination" name="destination" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-location-arrow"></i> Current Location</label>
+                        <input type="text" id="editCurrentLocation" name="current_location">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-info-circle"></i> Status</label>
+                        <select id="editStatus" name="status" required>
+                            <option value="pending">Pending</option>
+                            <option value="in-transit">In Transit</option>
+                            <option value="delivered">Delivered</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar"></i> Estimated Delivery</label>
+                        <input type="date" id="editEstimatedDelivery" name="estimated_delivery">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication before loading admin panel
+        fetch('/api/auth/check')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch(() => {
+                window.location.href = '/login.html';
+            });
+    </script>
+    <script src="admin-script.js"></script>
+</body>
+</html>
