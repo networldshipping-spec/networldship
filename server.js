@@ -24,17 +24,24 @@ const EMAIL_CONFIG = {
 
 // Create email transporter
 let emailTransporter = null;
-try {
-    emailTransporter = nodemailer.createTransport({
-        service: EMAIL_CONFIG.service,
-        auth: {
-            user: EMAIL_CONFIG.user,
-            pass: EMAIL_CONFIG.pass
-        }
-    });
-    console.log('📧 Email service configured');
-} catch (error) {
-    console.log('⚠️  Email service not configured - emails will be simulated');
+if (EMAIL_CONFIG.user && EMAIL_CONFIG.pass) {
+    try {
+        emailTransporter = nodemailer.createTransport({
+            service: EMAIL_CONFIG.service,
+            auth: {
+                user: EMAIL_CONFIG.user,
+                pass: EMAIL_CONFIG.pass
+            }
+        });
+        console.log('📧 Email service configured');
+        console.log(`   User: ${EMAIL_CONFIG.user}`);
+    } catch (error) {
+        console.log('⚠️  Email transporter creation failed:', error.message);
+    }
+} else {
+    console.log('⚠️  EMAIL_USER or EMAIL_PASS not set - emails will fail');
+    console.log(`   EMAIL_USER: ${EMAIL_CONFIG.user ? 'SET' : 'MISSING'}`);
+    console.log(`   EMAIL_PASS: ${EMAIL_CONFIG.pass ? 'SET' : 'MISSING'}`);
 }
 
 // Create uploads directory if it doesn't exist
@@ -464,6 +471,9 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
         // Send real email using Nodemailer
         if (emailTransporter) {
             try {
+                // Verify transporter first
+                await emailTransporter.verify();
+                
                 const emailHTML = `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
                         <div style="white-space: pre-line; padding: 20px; background: #f8fafc; border-radius: 8px; margin-bottom: 20px; line-height: 1.6;">
@@ -482,7 +492,13 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
                     html: emailHTML
                 };
                 
-                await emailTransporter.sendMail(mailOptions);
+                // Send with 30 second timeout
+                await Promise.race([
+                    emailTransporter.sendMail(mailOptions),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Email timeout after 30 seconds')), 30000)
+                    )
+                ]);
                 console.log(`✅ Email sent successfully to ${recipient_email}`);
                 console.log(`Subject: ${subject}`);
                 console.log(`Tracking: ${tracking_number}`);
