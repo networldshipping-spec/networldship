@@ -491,9 +491,9 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
                 // Store in conversations table as admin message
                 await pool.query(
                     `INSERT INTO conversations 
-                    (shipment_id, tracking_number, sender_type, sender_name, sender_email, subject, message, is_read) 
-                    VALUES ($1, $2, 'admin', 'NET WORLD SHIPPING', $3, $4, $5, TRUE)`,
-                    [shipment_id, tracking_number, EMAIL_CONFIG.user, subject, message]
+                    (shipment_id, sender_type, message) 
+                    VALUES ($1, 'admin', $2)`,
+                    [shipment_id, message]
                 );
                 
                 const responseMessage = receipt_html 
@@ -583,9 +583,10 @@ app.get('/api/conversations/:trackingNumber', requireAuth, async (req, res) => {
     try {
         const { trackingNumber } = req.params;
         const result = await pool.query(
-            `SELECT * FROM conversations 
-             WHERE tracking_number = $1 
-             ORDER BY created_at ASC`,
+            `SELECT c.* FROM conversations c
+             JOIN shipments s ON c.shipment_id = s.id
+             WHERE s.tracking_number = $1 
+             ORDER BY c.created_at ASC`,
             [trackingNumber]
         );
         res.json(result.rows);
@@ -599,9 +600,12 @@ app.post('/api/conversations/:trackingNumber/read', async (req, res) => {
     try {
         const { trackingNumber } = req.params;
         await pool.query(
-            `UPDATE conversations 
+            `UPDATE conversations c
              SET is_read = TRUE 
-             WHERE tracking_number = $1 AND sender_type != 'admin'`,
+             FROM shipments s
+             WHERE c.shipment_id = s.id 
+             AND s.tracking_number = $1 
+             AND c.sender_type != 'admin'`,
             [trackingNumber]
         );
         res.json({ success: true });
@@ -639,15 +643,16 @@ app.post('/api/conversations/reply', requireAuth, attachmentUpload.array('attach
         // Store admin reply in conversations with attachments
         await pool.query(
             `INSERT INTO conversations 
-            (shipment_id, tracking_number, sender_type, sender_name, sender_email, subject, message, attachments, is_read) 
-            VALUES ($1, $2, 'admin', 'NET WORLD SHIPPING', $3, 'Reply', $4, $5, TRUE)`,
-            [shipmentData.id, tracking_number, EMAIL_CONFIG.user, message, JSON.stringify(attachmentInfo)]
+            (shipment_id, sender_type, message, attachments) 
+            VALUES ($1, 'admin', $2, $3)`,
+            [shipmentData.id, message, JSON.stringify(attachmentInfo)]
         );
 
         // Get the most recent customer message to find who to reply to
         const lastCustomerMessage = await pool.query(
-            `SELECT * FROM conversations 
-             WHERE tracking_number = $1 AND sender_type != 'admin' 
+            `SELECT c.* FROM conversations c
+             JOIN shipments s ON c.shipment_id = s.id
+             WHERE s.tracking_number = $1 AND c.sender_type != 'admin' 
              ORDER BY created_at DESC LIMIT 1`,
             [tracking_number]
         );
