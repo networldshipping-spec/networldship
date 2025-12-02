@@ -287,6 +287,23 @@ function openEditModal(shipment) {
     document.getElementById('editStatus').value = shipment.status || '';
     document.getElementById('editEstimatedDelivery').value = shipment.estimated_delivery ? shipment.estimated_delivery.split('T')[0] : '';
     
+    // Show current image if exists
+    const currentImageDiv = document.getElementById('editCurrentImage');
+    if (shipment.package_image_path) {
+        currentImageDiv.innerHTML = `
+            <div style="margin-top: 10px;">
+                <p style="font-size: 0.875rem; color: #6b7280;">Current Image:</p>
+                <img src="${BASE_URL}${shipment.package_image_path}" alt="Current Package" style="max-width: 200px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 5px;">Upload a new image to replace</p>
+            </div>
+        `;
+    } else {
+        currentImageDiv.innerHTML = '<p style="font-size: 0.875rem; color: #9ca3af;">No image uploaded</p>';
+    }
+    
+    // Setup file upload for edit form
+    setupFileUpload('editPackageImage', 'editPackageImageName');
+    
     // Show modal
     document.getElementById('editModal').classList.add('active');
 }
@@ -624,6 +641,20 @@ async function updateShipment(e) {
     const formData = new FormData(e.target);
     const shipmentId = formData.get('id');
     
+    // Upload package image if it exists (optional)
+    let packageImagePath = null;
+    let packageImageFilename = null;
+    
+    const packageImage = formData.get('package_image');
+    
+    if (packageImage && packageImage.size > 0) {
+        const uploadResult = await uploadFile(packageImage, 'package');
+        if (uploadResult) {
+            packageImagePath = uploadResult.path;
+            packageImageFilename = uploadResult.filename;
+        }
+    }
+    
     const data = {
         tracking_number: formData.get('tracking_number'),
         carrier: formData.get('carrier'),
@@ -633,6 +664,12 @@ async function updateShipment(e) {
         status: formData.get('status'),
         estimated_delivery: formData.get('estimated_delivery') || null
     };
+    
+    // Add image paths if uploaded
+    if (packageImagePath) {
+        data.package_image_path = packageImagePath;
+        data.package_image_filename = packageImageFilename;
+    }
     
     showLoading(true);
     try {

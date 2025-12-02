@@ -694,6 +694,19 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Package Image (Optional)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="editPackageImage" name="package_image" accept="image/*">
+                        <label for="editPackageImage" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose Image</span>
+                        </label>
+                        <span id="editPackageImageName" class="file-name"></span>
+                    </div>
+                    <div id="editCurrentImage" style="margin-top: 10px;"></div>
+                </div>
+
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeEditModal()">
                         <i class="fas fa-times"></i> Cancel
