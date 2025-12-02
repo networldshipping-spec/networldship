@@ -287,23 +287,6 @@ function openEditModal(shipment) {
     document.getElementById('editStatus').value = shipment.status || '';
     document.getElementById('editEstimatedDelivery').value = shipment.estimated_delivery ? shipment.estimated_delivery.split('T')[0] : '';
     
-    // Show current image if exists
-    const currentImageDiv = document.getElementById('editCurrentImage');
-    if (shipment.package_image_path) {
-        currentImageDiv.innerHTML = `
-            <div style="margin-top: 10px;">
-                <p style="font-size: 0.875rem; color: #6b7280;">Current Image:</p>
-                <img src="${BASE_URL}${shipment.package_image_path}" alt="Current Package" style="max-width: 200px; border-radius: 8px; border: 2px solid #e5e7eb;">
-                <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 5px;">Upload a new image to replace</p>
-            </div>
-        `;
-    } else {
-        currentImageDiv.innerHTML = '<p style="font-size: 0.875rem; color: #9ca3af;">No image uploaded</p>';
-    }
-    
-    // Setup file upload for edit form
-    setupFileUpload('editPackageImage', 'editPackageImageName');
-    
     // Show modal
     document.getElementById('editModal').classList.add('active');
 }
@@ -641,20 +624,6 @@ async function updateShipment(e) {
     const formData = new FormData(e.target);
     const shipmentId = formData.get('id');
     
-    // Upload package image if it exists (optional)
-    let packageImagePath = null;
-    let packageImageFilename = null;
-    
-    const packageImage = formData.get('package_image');
-    
-    if (packageImage && packageImage.size > 0) {
-        const uploadResult = await uploadFile(packageImage, 'package');
-        if (uploadResult) {
-            packageImagePath = uploadResult.path;
-            packageImageFilename = uploadResult.filename;
-        }
-    }
-    
     const data = {
         tracking_number: formData.get('tracking_number'),
         carrier: formData.get('carrier'),
@@ -663,12 +632,6 @@ async function updateShipment(e) {
         current_location: formData.get('current_location') || formData.get('origin'),
         status: formData.get('status'),
         estimated_delivery: formData.get('estimated_delivery') || null
-    };
-    
-    // Add image paths if uploaded
-    if (packageImagePath) {
-        data.package_image_path = packageImagePath;
-        data.package_image_filename = packageImageFilename;
     }
     
     showLoading(true);
@@ -687,27 +650,45 @@ async function updateShipment(e) {
             const newData = result.data;
             
             // Check what changed and create appropriate tracking event
-            let changeDescription = 'Shipment information updated: ';
-            const changes = [];
+            let description = '';
+            let hasChanges = false;
             
+            // Status change - most important
             if (oldData.status !== newData.status) {
-                changes.push(`Status changed from "${oldData.status}" to "${newData.status}"`);
+                hasChanges = true;
+                // Create simple description based on new status
+                const statusDescriptions = {
+                    'shipment-created': 'Shipment created and processing initiated',
+                    'processing': 'Shipment processing in progress',
+                    'pending': 'Shipment pending verification',
+                    'custom-check': 'Package under customs inspection',
+                    'detained': 'Shipment detained for inspection',
+                    'in-transit': `Package in transit to ${newData.destination}`,
+                    'out-for-delivery': `Package out for delivery to ${newData.destination}`,
+                    'arrived': `Package arrived at ${newData.current_location}`,
+                    'awaiting-clearance': 'Awaiting customs clearance',
+                    'cleared': 'Customs clearance completed',
+                    'awaiting-payment': 'Awaiting payment confirmation',
+                    'payment-received': 'Payment received and confirmed',
+                    'delivered': `Package successfully delivered to ${newData.destination}`
+                };
+                description = statusDescriptions[newData.status] || 'Shipment status updated';
             }
-            if (oldData.current_location !== newData.current_location) {
-                changes.push(`Location updated to "${newData.current_location}"`);
+            // Location change without status change
+            else if (oldData.current_location !== newData.current_location) {
+                hasChanges = true;
+                description = `Package moved to ${newData.current_location}`;
             }
-            if (oldData.carrier !== newData.carrier) {
-                changes.push(`Carrier changed to "${newData.carrier}"`);
-            }
-            if (oldData.destination !== newData.destination) {
-                changes.push(`Destination changed to "${newData.destination}"`);
+            // Other changes
+            else if (oldData.carrier !== newData.carrier || oldData.destination !== newData.destination || 
+                     oldData.origin !== newData.origin || oldData.tracking_number !== newData.tracking_number) {
+                hasChanges = true;
+                description = 'Shipment information updated';
             }
             
-            if (changes.length > 0) {
-                changeDescription += changes.join(', ');
-                
+            if (hasChanges) {
                 // Add tracking event to preserve history
-                await fetch(`${API_BASE_URL}/tracking-events`, {
+                const eventResponse = await fetch(`${API_BASE_URL}/tracking-events`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -715,12 +696,16 @@ async function updateShipment(e) {
                         event_date: new Date().toISOString(),
                         status: newData.status,
                         location: newData.current_location,
-                        description: changeDescription
+                        description: description
                     })
                 });
+                
+                await eventResponse.json();
+                showToast('Shipment updated and tracking event added', 'success');
+            } else {
+                showToast('Shipment updated (no changes detected)', 'info');
             }
             
-            showToast('Shipment updated and tracking event added', 'success');
             closeEditModal();
             loadAllShipments();
             loadDashboardStats();

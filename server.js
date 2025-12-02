@@ -109,7 +109,7 @@ const attachmentUpload = multer({
     }
 });
 
-// PostgreSQL connection
+// PostgreSQL connection with improved timeout and retry settings
 const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
     host: process.env.DB_HOST || 'localhost',
@@ -118,7 +118,12 @@ const pool = new Pool({
     port: parseInt(process.env.DB_PORT) || 5432,
     ssl: process.env.DB_HOST !== 'localhost' ? {
         rejectUnauthorized: false
-    } : false
+    } : false,
+    max: 20, // Maximum number of clients in the pool
+    idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+    connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection cannot be established
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000
 });
 
 // Test database connection
@@ -396,32 +401,29 @@ app.put('/api/shipments/:id', requireAuth, async (req, res) => {
         
         const oldData = oldDataResult.rows[0];
         
-        // Ensure all parameters are defined
-        const params = [
-            tracking_number, 
-            carrier, 
-            origin, 
-            destination, 
-            current_location || origin, // Default to origin if not provided
-            status, 
-            estimated_delivery || null, // Ensure null if empty
-            id
-        ];
-        
-        const result = await pool.query(
-            `UPDATE shipments 
+        // Update shipment (no image changes allowed in update)
+        const updateQuery = `UPDATE shipments 
             SET tracking_number = $1, carrier = $2, origin = $3, destination = $4, 
                 current_location = $5, status = $6, estimated_delivery = $7, 
-                updated_at = CURRENT_TIMESTAMP 
+                updated_at = CURRENT_TIMESTAMP
             WHERE id = $8 
-            RETURNING *`,
-            params
-        );
+            RETURNING *`;
+        
+        const result = await pool.query(updateQuery, [
+            tracking_number,
+            carrier,
+            origin,
+            destination,
+            current_location || origin,
+            status,
+            estimated_delivery || null,
+            id
+        ]);
         
         res.json({ 
             success: true, 
             data: result.rows[0],
-            oldData: oldData  // Send old data so frontend can compare changes
+            oldData: oldData
         });
     } catch (error) {
         console.error('Error updating shipment:', error);
