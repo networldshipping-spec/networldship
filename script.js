@@ -232,7 +232,7 @@ function displayTrackingResults(data) {
                     </div>
                     ${shipment.package_image_path ? `
                         <div class="package-image-container">
-                            <img src="${shipment.package_image_path.startsWith('http') ? shipment.package_image_path : window.location.origin + shipment.package_image_path}" alt="Package Image" class="package-image" onerror="console.error('Image load failed:', this.src); this.parentElement.innerHTML='<div class=\\'image-error\\'><i class=\\'fas fa-exclamation-triangle\\'></i><p>Image failed to load</p><small>' + this.src + '</small></div>'">
+                            <img src="${shipment.package_image_path.startsWith('http') ? shipment.package_image_path : (window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin) + shipment.package_image_path}" alt="Package Image" class="package-image" onerror="console.error('Image load failed:', this.src); this.parentElement.innerHTML='<div class=\\'image-error\\'><i class=\\'fas fa-exclamation-triangle\\'></i><p>Image failed to load</p><small>' + this.src + '</small></div>'">
                             <div class="package-info">
                                 <div class="package-detail">
                                     <i class="fas fa-weight"></i>
