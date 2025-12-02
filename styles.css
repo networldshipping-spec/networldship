@@ -368,19 +368,69 @@ body {
     text-transform: uppercase;
 }
 
-.status-badge.in-transit {
-    background: rgba(6, 182, 212, 0.2);
-    color: var(--accent-color);
+.status-badge.shipment-created {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
 }
 
-.status-badge.delivered {
-    background: rgba(16, 185, 129, 0.2);
-    color: var(--success-color);
+.status-badge.processing {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
 }
 
 .status-badge.pending {
     background: rgba(245, 158, 11, 0.2);
     color: var(--warning-color);
+}
+
+.status-badge.custom-check {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+.status-badge.detained {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.status-badge.in-transit {
+    background: rgba(6, 182, 212, 0.2);
+    color: var(--accent-color);
+}
+
+.status-badge.out-for-delivery {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.status-badge.arrived {
+    background: rgba(14, 165, 233, 0.2);
+    color: #0ea5e9;
+}
+
+.status-badge.awaiting-clearance {
+    background: rgba(217, 119, 6, 0.2);
+    color: #d97706;
+}
+
+.status-badge.cleared {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.status-badge.awaiting-payment {
+    background: rgba(244, 63, 94, 0.2);
+    color: #f43f5e;
+}
+
+.status-badge.payment-received {
+    background: rgba(132, 204, 22, 0.2);
+    color: #84cc16;
+}
+
+.status-badge.delivered {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success-color);
 }
 
 .tracking-info {
