@@ -97,6 +97,9 @@ function displayTrackingResults(data) {
     const shipment = data.shipment;
     const timeline = data.timeline || [];
     
+    // Debug: Log package image path
+    console.log('Package image path:', shipment.package_image_path);
+    
     const statusClass = shipment.status.toLowerCase();
     const statusText = shipment.status.replace('-', ' ').toUpperCase();
     
@@ -229,7 +232,7 @@ function displayTrackingResults(data) {
                     </div>
                     ${shipment.package_image_path ? `
                         <div class="package-image-container">
-                            <img src="${window.location.origin}${shipment.package_image_path}" alt="Package Image" class="package-image" onerror="this.parentElement.innerHTML='<div class=\\'image-error\\'><i class=\\'fas fa-exclamation-triangle\\'></i><p>Image failed to load</p></div>'">
+                            <img src="${shipment.package_image_path.startsWith('http') ? shipment.package_image_path : window.location.origin + shipment.package_image_path}" alt="Package Image" class="package-image" onerror="console.error('Image load failed:', this.src); this.parentElement.innerHTML='<div class=\\'image-error\\'><i class=\\'fas fa-exclamation-triangle\\'></i><p>Image failed to load</p><small>' + this.src + '</small></div>'">
                             <div class="package-info">
                                 <div class="package-detail">
                                     <i class="fas fa-weight"></i>
