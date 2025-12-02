@@ -484,7 +484,7 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
                 `;
                 
                 const mailOptions = {
-                    from: `NET WORLD SHIPPING <${EMAIL_CONFIG.user}>`,
+                    from: `Net World Ship <${EMAIL_CONFIG.user}>`,
                     to: recipient_email,
                     replyTo: EMAIL_CONFIG.user,
                     subject: subject,
@@ -680,7 +680,7 @@ app.post('/api/conversations/reply', requireAuth, attachmentUpload.array('attach
                     }));
                     
                     const mailOptions = {
-                        from: `NET WORLD SHIPPING <${EMAIL_CONFIG.user}>`,
+                        from: `Net World Ship <${EMAIL_CONFIG.user}>`,
                         to: customerEmail,
                         replyTo: EMAIL_CONFIG.user,
                         subject: `Re: ${customer.subject}`,
@@ -689,7 +689,7 @@ app.post('/api/conversations/reply', requireAuth, attachmentUpload.array('attach
                         html: `
                             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                                 <div style="background: #3b82f6; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
-                                    <h2 style="margin: 0;">NET WORLD SHIPPING</h2>
+                                    <h2 style="margin: 0;">Net World Ship</h2>
                                 </div>
                                 <div style="padding: 30px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
                                     <p style="margin: 0 0 10px 0; color: #6b7280;">Hello ${customerName},</p>
@@ -703,8 +703,8 @@ app.post('/api/conversations/reply', requireAuth, attachmentUpload.array('attach
                                     </p>
                                 </div>
                                 <div style="text-align: center; padding: 20px; font-size: 12px; color: #9ca3af;">
-                                    NET WORLD SHIPPING Team<br>
-                                    support@networldshipping.com | +1 (555) 123-4567
+                                    Net World Ship Team<br>
+                                    support@networldship.com | +1 (800) 999-0000
                                 </div>
                             </div>
                         `

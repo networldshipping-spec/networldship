@@ -824,15 +824,15 @@ function generateReceipt(shipment) {
         <div class="receipt-header">
             <div class="receipt-logo">
                 <i class="fas fa-shipping-fast receipt-logo-icon"></i>
-                <div class="receipt-logo-text">NET WORLD SHIPPING</div>
+                <div class="receipt-logo-text">Net World Ship</div>
                 <div class="receipt-logo-tagline">Global Shipping Solutions</div>
             </div>
             <div class="receipt-company-info">
-                <strong>NET WORLD SHIPPING</strong><br>
+                <strong>Net World Ship</strong><br>
                 123 Logistics Avenue<br>
-                New York, NY 10001<br>
-                Phone: +1 (555) 123-4567<br>
-                Email: info@networldshipping.com
+                Long Beach, CA 90802<br>
+                Phone: +1 (800) 999-0000<br>
+                Email: support@networldship.com
             </div>
         </div>
         
@@ -960,9 +960,9 @@ function generateReceipt(shipment) {
         
         <div class="receipt-footer">
             <div class="receipt-footer-text">
-                <strong>Thank you for choosing NET WORLD SHIPPING!</strong><br>
+                <strong>Thank you for choosing Net World Ship!</strong><br>
                 This is an official receipt for your shipment. Please keep it for your records.<br>
-                For tracking updates, visit www.networldshipping.com or call our 24/7 support line.<br><br>
+                For tracking updates, visit www.networldship.com or call our 24/7 support line.<br><br>
                 <strong>Origin:</strong> ${shipment.origin} | <strong>Destination:</strong> ${shipment.destination}<br>
                 <strong>Status:</strong> ${shipment.status.toUpperCase()} | <strong>Estimated Delivery:</strong> ${formatDate(shipment.estimated_delivery)}<br><br>
                 <em>This is a computer-generated receipt and does not require a signature.</em>
@@ -1097,7 +1097,7 @@ function selectRecipient(type) {
     
     document.getElementById('recipientEmail').value = email;
     document.getElementById('selectedRecipientType').value = type;
-    document.getElementById('emailSubject').value = `NET WORLD SHIPPING - Shipment Update ${currentShipmentForContact.tracking_number}`;
+    document.getElementById('emailSubject').value = `Net World Ship - Shipment Update ${currentShipmentForContact.tracking_number}`;
     
     showToast(`Selected ${type}: ${name}`, 'success');
 }
@@ -1146,11 +1146,11 @@ function generateReceiptForEmail(shipment) {
 </head>
 <body>
     <div class="receipt-header">
-        <div class="receipt-logo-text">NET WORLD SHIPPING</div>
+        <div class="receipt-logo-text">Net World Ship</div>
         <div class="receipt-logo-tagline">Global Shipping Solutions</div>
         <div style="margin-top: 15px; font-size: 14px;">
-            123 Logistics Avenue, New York, NY 10001<br>
-            Phone: +1 (555) 123-4567 | Email: info@networldshipping.com
+            1234 Harbor Boulevard, Long Beach, CA 90802<br>
+            Phone: +1 (800) 999-0000 | Email: support@networldship.com
         </div>
     </div>
     
@@ -1268,7 +1268,7 @@ function generateReceiptForEmail(shipment) {
     </div>
     
     <div class="receipt-footer">
-        <strong>Thank you for choosing NET WORLD SHIPPING!</strong><br>
+        <strong>Thank you for choosing Net World Ship!</strong><br>
         This is an official receipt for your shipment. Please keep it for your records.<br>
         <strong>Origin:</strong> ${shipment.origin} | <strong>Destination:</strong> ${shipment.destination}<br>
         <strong>Status:</strong> ${shipment.status.toUpperCase()} | <strong>Estimated Delivery:</strong> ${shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toLocaleDateString() : 'TBD'}<br><br>
@@ -1298,7 +1298,7 @@ function applyEmailTemplate() {
         case 'created':
             message = `Dear Customer,
 
-Your shipment has been created and is being processed by NET WORLD SHIPPING.
+Your shipment has been created and is being processed by Net World Ship.
 
 Tracking Number: ${trackingNumber}
 Origin: ${origin}
@@ -1311,12 +1311,12 @@ ${trackingURL}
 📄 SHIPMENT RECEIPT ATTACHED
 Please see the attached receipt for complete shipment details including sender/receiver information, package details, and shipping costs.
 
-Thank you for choosing NET WORLD SHIPPING!
+Thank you for choosing Net World Ship!
 
 Best regards,
-NET WORLD SHIPPING Team
-support@networldshipping.com
-+1 (555) 123-4567`;
+Net World Ship Team
+support@networldship.com
++1 (800) 999-0000`;
             break;
             
         case 'update':
@@ -1334,9 +1334,9 @@ ${trackingURL}
 For any questions, please contact our support team.
 
 Best regards,
-NET WORLD SHIPPING Team
-support@networldshipping.com
-+1 (555) 123-4567`;
+Net World Ship Team
+support@networldship.com
++1 (800) 999-0000`;
             break;
             
         case 'delivered':
@@ -1348,14 +1348,14 @@ Tracking Number: ${trackingNumber}
 Delivered From: ${origin}
 Delivered To: ${destination}
 
-Thank you for choosing NET WORLD SHIPPING for your shipping needs. We hope to serve you again soon!
+Thank you for choosing Net World Ship for your shipping needs. We hope to serve you again soon!
 
 If you have any questions about your delivery, please contact us.
 
 Best regards,
-NET WORLD SHIPPING Team
-support@networldshipping.com
-+1 (555) 123-4567`;
+Net World Ship Team
+support@networldship.com
++1 (800) 999-0000`;
             break;
     }
     
@@ -1560,4 +1560,4 @@ async function loadChatStats() {
 
 // Console
 console.log('%c🔐 Admin Panel', 'color: #6366f1; font-size: 24px; font-weight: bold;');
-console.log('%cNET WORLD SHIPPING Management System', 'color: #ec4899; font-size: 14px;');
+console.log('%cNet World Ship Management System', 'color: #ec4899; font-size: 14px;');

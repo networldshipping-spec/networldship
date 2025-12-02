@@ -421,5 +421,5 @@ window.addEventListener('scroll', () => {
 });
 
 // Console welcome message
-console.log('%c🚚 ShipTrack v1.0', 'color: #6366f1; font-size: 24px; font-weight: bold;');
+console.log('%c🚚 Net World Ship v1.0', 'color: #6366f1; font-size: 24px; font-weight: bold;');
 console.log('%cModern Shipment Tracking System', 'color: #ec4899; font-size: 14px;');
