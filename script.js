@@ -229,7 +229,7 @@ function displayTrackingResults(data) {
                     </div>
                     ${shipment.package_image_path ? `
                         <div class="package-image-container">
-                            <img src="${shipment.package_image_path}" alt="Package Image" class="package-image">
+                            <img src="${window.location.origin}${shipment.package_image_path}" alt="Package Image" class="package-image" onerror="this.parentElement.innerHTML='<div class=\\'image-error\\'><i class=\\'fas fa-exclamation-triangle\\'></i><p>Image failed to load</p></div>'"
                             <div class="package-info">
                                 <div class="package-detail">
                                     <i class="fas fa-weight"></i>
