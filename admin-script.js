@@ -1149,7 +1149,7 @@ function generateReceiptForEmail(shipment) {
         <div class="receipt-logo-text">Net World Ship</div>
         <div class="receipt-logo-tagline">Global Shipping Solutions</div>
         <div style="margin-top: 15px; font-size: 14px;">
-            1234 Harbor Boulevard, Long Beach, CA 90802<br>
+            12 Harbor Boulevard, Long Beach, CA 90802<br>
             Phone: +1 (800) 999-0000 | Email: support@networldship.com
         </div>
     </div>
