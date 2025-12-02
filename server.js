@@ -314,7 +314,20 @@ app.post('/api/shipments', requireAuth, async (req, res) => {
              package_image_path, package_image_filename]
         );
         
-        res.json({ success: true, data: result.rows[0] });
+        const newShipment = result.rows[0];
+        
+        // Automatically create initial tracking event
+        const initialLocation = current_location || origin;
+        const initialDescription = `Shipment created and received at ${initialLocation}`;
+        
+        await pool.query(
+            `INSERT INTO tracking_events 
+            (shipment_id, event_date, status, location, description) 
+            VALUES ($1, CURRENT_TIMESTAMP, $2, $3, $4)`,
+            [newShipment.id, status, initialLocation, initialDescription]
+        );
+        
+        res.json({ success: true, data: newShipment });
     } catch (error) {
         console.error('Error creating shipment:', error);
         res.status(500).json({ success: false, error: error.message });
