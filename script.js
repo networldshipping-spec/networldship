@@ -41,8 +41,12 @@ function setupEventListeners() {
     // Smooth scroll for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            // Skip if href is just "#" or empty
+            if (!href || href === '#') return;
+            
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const target = document.querySelector(href);
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 nav.classList.remove('active');
@@ -431,6 +435,17 @@ window.addEventListener('scroll', () => {
 function setupLanguageSelector() {
     if (!languageBtn || !languageDropdown) return;
     
+    // Wait for Google Translate to load
+    let checkCount = 0;
+    const checkInterval = setInterval(() => {
+        const select = document.querySelector('.goog-te-combo');
+        if (select || checkCount > 10) {
+            clearInterval(checkInterval);
+            console.log('Google Translate loaded:', select ? 'Yes' : 'No');
+        }
+        checkCount++;
+    }, 500);
+    
     // Toggle dropdown
     languageBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -473,22 +488,40 @@ function setupLanguageSelector() {
 }
 
 function changeLanguage(lang) {
-    // Get Google Translate select element
+    console.log('Attempting to change language to:', lang);
+    
+    // Method 1: Try using the select element
     const translateSelect = document.querySelector('.goog-te-combo');
     
     if (translateSelect) {
+        console.log('Found translate select, changing language...');
         translateSelect.value = lang;
         translateSelect.dispatchEvent(new Event('change'));
-    } else {
-        // If not ready yet, wait and try again
-        setTimeout(() => {
-            const select = document.querySelector('.goog-te-combo');
-            if (select) {
-                select.value = lang;
-                select.dispatchEvent(new Event('change'));
-            }
-        }, 1000);
+        return;
     }
+    
+    // Method 2: Wait and retry multiple times
+    let attempts = 0;
+    const maxAttempts = 20;
+    const retryInterval = setInterval(() => {
+        attempts++;
+        const select = document.querySelector('.goog-te-combo');
+        
+        if (select) {
+            console.log('Found translate select on attempt', attempts);
+            select.value = lang;
+            select.dispatchEvent(new Event('change'));
+            clearInterval(retryInterval);
+        } else if (attempts >= maxAttempts) {
+            console.error('Could not find Google Translate element after', maxAttempts, 'attempts');
+            clearInterval(retryInterval);
+            
+            // Method 3: Try direct cookie approach
+            document.cookie = `googtrans=/en/${lang}; path=/`;
+            document.cookie = `googtrans=/en/${lang}; path=/; domain=${window.location.hostname}`;
+            window.location.reload();
+        }
+    }, 250);
 }
 
 // Console welcome message
