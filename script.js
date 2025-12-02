@@ -13,12 +13,16 @@ const menuToggle = document.getElementById('menuToggle');
 const nav = document.querySelector('.nav');
 const toast = document.getElementById('toast');
 const loadingSpinner = document.getElementById('loadingSpinner');
+const languageBtn = document.getElementById('languageBtn');
+const languageDropdown = document.getElementById('languageDropdown');
+const currentLangSpan = document.getElementById('currentLang');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     animateStats();
     setupEventListeners();
     setupScrollAnimations();
+    setupLanguageSelector();
 });
 
 // Event Listeners
@@ -422,6 +426,70 @@ window.addEventListener('scroll', () => {
         parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
     }
 });
+
+// Language Selector Setup
+function setupLanguageSelector() {
+    if (!languageBtn || !languageDropdown) return;
+    
+    // Toggle dropdown
+    languageBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        languageDropdown.classList.toggle('active');
+        languageBtn.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+            languageDropdown.classList.remove('active');
+            languageBtn.classList.remove('active');
+        }
+    });
+    
+    // Language selection
+    document.querySelectorAll('.language-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            const lang = option.getAttribute('data-lang');
+            changeLanguage(lang);
+            
+            // Update display
+            const langCodes = {
+                'en': 'EN',
+                'es': 'ES',
+                'pt': 'PT',
+                'fr': 'FR',
+                'zh-CN': '中文',
+                'hi': 'हिं',
+                'el': 'ΕΛ'
+            };
+            currentLangSpan.textContent = langCodes[lang] || 'EN';
+            
+            // Close dropdown
+            languageDropdown.classList.remove('active');
+            languageBtn.classList.remove('active');
+        });
+    });
+}
+
+function changeLanguage(lang) {
+    // Get Google Translate select element
+    const translateSelect = document.querySelector('.goog-te-combo');
+    
+    if (translateSelect) {
+        translateSelect.value = lang;
+        translateSelect.dispatchEvent(new Event('change'));
+    } else {
+        // If not ready yet, wait and try again
+        setTimeout(() => {
+            const select = document.querySelector('.goog-te-combo');
+            if (select) {
+                select.value = lang;
+                select.dispatchEvent(new Event('change'));
+            }
+        }, 1000);
+    }
+}
 
 // Console welcome message
 console.log('%c🚚 Net World Ship v1.0', 'color: #6366f1; font-size: 24px; font-weight: bold;');

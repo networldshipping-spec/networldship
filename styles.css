@@ -124,6 +124,93 @@ img {
     width: 100%;
 }
 
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Language Selector */
+.language-selector {
+    position: relative;
+}
+
+.language-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.language-btn:hover {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.language-btn i:first-child {
+    color: var(--primary-color);
+}
+
+.language-btn i:last-child {
+    font-size: 0.75rem;
+    transition: transform 0.3s;
+}
+
+.language-btn.active i:last-child {
+    transform: rotate(180deg);
+}
+
+.language-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    min-width: 160px;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--transition);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.language-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.language-option {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.language-option:last-child {
+    border-bottom: none;
+}
+
+.language-option:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--text-primary);
+    padding-left: 1.25rem;
+}
+
 .menu-toggle {
     display: none;
     background: none;
@@ -131,6 +218,19 @@ img {
     color: var(--text-primary);
     font-size: 1.5rem;
     cursor: pointer;
+}
+
+/* Hide Google Translate Bar */
+.goog-te-banner-frame {
+    display: none !important;
+}
+
+body {
+    top: 0 !important;
+}
+
+.skiptranslate {
+    display: none !important;
 }
 
 /* Hero Section */
@@ -1213,6 +1313,29 @@ img {
     
     .nav {
         display: none;
+    }
+    
+    .header-actions {
+        gap: 0.5rem;
+    }
+    
+    .language-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .language-btn span {
+        display: inline;
+    }
+    
+    .language-dropdown {
+        right: 0;
+        min-width: 140px;
+    }
+    
+    .language-option {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.9rem;
     }
     
     .menu-toggle {
