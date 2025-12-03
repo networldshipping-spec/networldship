@@ -258,7 +258,7 @@ app.get('/api/tracking/:trackingNumber', async (req, res) => {
         
         // Get tracking events/timeline
         const eventsResult = await pool.query(
-            'SELECT * FROM tracking_events WHERE shipment_id = $1 ORDER BY event_date DESC',
+            'SELECT * FROM tracking_events WHERE shipment_id = $1 ORDER BY event_date ASC',
             [shipmentResult.rows[0].id]
         );
         

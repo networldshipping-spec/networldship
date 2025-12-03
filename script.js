@@ -129,9 +129,9 @@ function displayTrackingResults(data) {
     const statusClass = shipment.status.toLowerCase();
     const statusText = shipment.status.replace('-', ' ').toUpperCase();
     
-    // Determine active timeline item (most recent)
+    // Determine active timeline item (most recent - now last in array since ASC order)
     const timelineHTML = timeline.map((item, index) => `
-        <div class="timeline-item ${index === 0 ? 'active' : ''}">
+        <div class="timeline-item ${index === timeline.length - 1 ? 'active' : ''}">
             <div class="timeline-marker"></div>
             <div class="timeline-content">
                 <div class="timeline-date">${formatDateTime(item.event_date)}</div>
