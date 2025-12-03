@@ -1419,6 +1419,41 @@ support@networldship.com
 +1 (800) 999-0000`;
             break;
             
+        case 'arrival':
+            message = `Dear Customer,
+
+🎉 GREAT NEWS! Your shipment has arrived at our facility!
+
+Tracking Number: ${trackingNumber}
+Origin: ${origin}
+Destination: ${destination}
+Current Location: ${currentShipmentForContact.current_location || destination}
+Status: ARRIVED - AWAITING PAYMENT
+
+⚠️ IMPORTANT: Payment Required for Release
+Your package is ready for final delivery. Please review the attached billing invoice and complete payment within 72 hours to avoid storage fees.
+
+💳 PAYMENT METHODS INCLUDED:
+• Bank Wire Transfer
+• Credit/Debit Card (24/7 Hotline)
+• PayPal / Zelle
+• Cryptocurrency (BTC/USDT)
+
+All payment details and procedures are included in the attached invoice.
+
+Track your shipment:
+${trackingURL}
+
+For assistance, contact us immediately:
+📧 support@networldship.com
+📞 +1 (800) 999-0000
+
+📄 BILLING INVOICE ATTACHED
+
+Best regards,
+Net World Ship Team`;
+            break;
+            
         case 'delivered':
             message = `Dear Customer,
 
@@ -1447,24 +1482,10 @@ async function handleSendEmail(e) {
     
     const formData = new FormData(e.target);
     const template = formData.get('template');
+    const recipientType = formData.get('recipient_type');
+    const recipientEmail = formData.get('recipient_email');
     
-    // Only include receipt for shipment creation
-    const includeReceipt = template === 'created';
-    const receiptHTML = includeReceipt ? generateReceiptForEmail(currentShipmentForContact) : null;
-    
-    const emailData = {
-        shipment_id: formData.get('shipment_id'),
-        recipient_type: formData.get('recipient_type'),
-        recipient_email: formData.get('recipient_email'),
-        subject: formData.get('subject'),
-        message: formData.get('message'),
-        tracking_number: currentShipmentForContact.tracking_number,
-        receipt_html: receiptHTML,
-        shipment_data: currentShipmentForContact,
-        include_receipt: includeReceipt
-    };
-    
-    if (!emailData.recipient_type) {
+    if (!recipientType) {
         showToast('Please select a recipient (Sender or Receiver)', 'error');
         return;
     }
@@ -1472,11 +1493,47 @@ async function handleSendEmail(e) {
     showLoading(true);
     
     try {
-        const response = await fetch(`${API_BASE_URL}/notifications/send`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(emailData)
-        });
+        let response;
+        
+        // Use special endpoint for arrival notification with invoice
+        if (template === 'arrival') {
+            const recipientName = recipientType === 'sender' ? 
+                currentShipmentForContact.sender_name : 
+                currentShipmentForContact.receiver_name;
+            
+            response = await fetch(`${API_BASE_URL}/send-arrival-notification`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    shipment_id: formData.get('shipment_id'),
+                    recipient_type: recipientType,
+                    recipient_email: recipientEmail,
+                    recipient_name: recipientName
+                })
+            });
+        } else {
+            // Regular notification with optional receipt
+            const includeReceipt = template === 'created';
+            const receiptHTML = includeReceipt ? generateReceiptForEmail(currentShipmentForContact) : null;
+            
+            const emailData = {
+                shipment_id: formData.get('shipment_id'),
+                recipient_type: recipientType,
+                recipient_email: recipientEmail,
+                subject: formData.get('subject'),
+                message: formData.get('message'),
+                tracking_number: currentShipmentForContact.tracking_number,
+                receipt_html: receiptHTML,
+                shipment_data: currentShipmentForContact,
+                include_receipt: includeReceipt
+            };
+            
+            response = await fetch(`${API_BASE_URL}/notifications/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emailData)
+            });
+        }
         
         const result = await response.json();
         

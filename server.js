@@ -813,6 +813,275 @@ app.get('/api/attachments/:filename', (req, res) => {
     }
 });
 
+// Send arrival notification with invoice
+app.post('/api/send-arrival-notification', requireAuth, async (req, res) => {
+    try {
+        const { shipment_id, recipient_email, recipient_name, recipient_type } = req.body;
+
+        // Get shipment details
+        const shipmentResult = await pool.query(
+            'SELECT * FROM shipments WHERE id = $1',
+            [shipment_id]
+        );
+
+        if (shipmentResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Shipment not found' });
+        }
+
+        const shipment = shipmentResult.rows[0];
+
+        // Calculate invoice details
+        const shippingCost = parseFloat(shipment.shipping_cost || 150.00);
+        const insuranceFee = parseFloat(shipment.insurance_fee || 25.00);
+        const customsFee = parseFloat(shipment.customs_fee || 50.00);
+        const handlingFee = parseFloat(shipment.handling_fee || 15.00);
+        const subtotal = shippingCost + insuranceFee + customsFee + handlingFee;
+        const tax = subtotal * 0.08; // 8% tax
+        const total = subtotal + tax;
+
+        // Generate invoice HTML
+        const invoiceHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                    .invoice-container { max-width: 800px; margin: 0 auto; border: 1px solid #ddd; }
+                    .invoice-header { background: #3b82f6; color: white; padding: 30px; text-align: center; }
+                    .invoice-header h1 { margin: 0 0 10px 0; font-size: 28px; }
+                    .invoice-body { padding: 30px; }
+                    .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+                    .detail-box { padding: 15px; background: #f9fafb; border-radius: 8px; }
+                    .detail-box h3 { margin: 0 0 10px 0; font-size: 14px; color: #6b7280; text-transform: uppercase; }
+                    .detail-box p { margin: 5px 0; font-size: 14px; color: #1f2937; }
+                    .invoice-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                    .invoice-table th { background: #f3f4f6; padding: 12px; text-align: left; font-size: 12px; text-transform: uppercase; color: #6b7280; border-bottom: 2px solid #e5e7eb; }
+                    .invoice-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+                    .invoice-table tr:last-child td { border-bottom: none; }
+                    .totals-section { margin-top: 20px; text-align: right; }
+                    .totals-section table { margin-left: auto; width: 300px; }
+                    .totals-section td { padding: 8px 0; font-size: 14px; }
+                    .totals-section .total-row { font-size: 18px; font-weight: bold; color: #3b82f6; border-top: 2px solid #3b82f6; padding-top: 12px; }
+                    .payment-methods { margin-top: 30px; padding: 20px; background: #eff6ff; border-radius: 8px; border-left: 4px solid #3b82f6; }
+                    .payment-methods h3 { margin: 0 0 15px 0; color: #1f2937; font-size: 16px; }
+                    .payment-option { margin: 15px 0; padding: 15px; background: white; border-radius: 6px; }
+                    .payment-option h4 { margin: 0 0 8px 0; color: #3b82f6; font-size: 14px; }
+                    .payment-option p { margin: 5px 0; font-size: 13px; color: #4b5563; line-height: 1.6; }
+                    .footer { text-align: center; padding: 20px; background: #f9fafb; color: #6b7280; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="invoice-container">
+                    <div class="invoice-header">
+                        <h1>📦 BILLING INVOICE</h1>
+                        <p style="margin: 0; font-size: 14px;">Shipment Arrival - Payment Required</p>
+                    </div>
+                    
+                    <div class="invoice-body">
+                        <div style="text-align: right; margin-bottom: 20px;">
+                            <p style="margin: 0; font-size: 12px; color: #6b7280;">Invoice Date</p>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; font-weight: 600;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </div>
+
+                        <div class="invoice-details">
+                            <div class="detail-box">
+                                <h3>From (Sender)</h3>
+                                <p><strong>${shipment.sender_name || 'N/A'}</strong></p>
+                                <p>${shipment.sender_email || ''}</p>
+                                <p>${shipment.sender_phone || ''}</p>
+                                <p>${shipment.sender_address || ''}</p>
+                                <p>${shipment.sender_city || ''}, ${shipment.sender_country || ''}</p>
+                            </div>
+                            
+                            <div class="detail-box">
+                                <h3>To (Receiver)</h3>
+                                <p><strong>${shipment.receiver_name || 'N/A'}</strong></p>
+                                <p>${shipment.receiver_email || ''}</p>
+                                <p>${shipment.receiver_phone || ''}</p>
+                                <p>${shipment.receiver_address || ''}</p>
+                                <p>${shipment.receiver_city || ''}, ${shipment.receiver_country || ''}</p>
+                            </div>
+                        </div>
+
+                        <div style="padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+                            <p style="margin: 0; font-size: 14px; color: #92400e;"><strong>📍 Shipment Status:</strong> ARRIVED</p>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color: #92400e;"><strong>Tracking Number:</strong> ${shipment.tracking_number}</p>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color: #92400e;"><strong>Current Location:</strong> ${shipment.current_location || shipment.destination}</p>
+                        </div>
+
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Shipping Cost (${shipment.origin} → ${shipment.destination})</td>
+                                    <td>$${shippingCost.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Insurance Fee</td>
+                                    <td>$${insuranceFee.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Customs Clearance Fee</td>
+                                    <td>$${customsFee.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Handling & Processing Fee</td>
+                                    <td>$${handlingFee.toFixed(2)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="totals-section">
+                            <table>
+                                <tr>
+                                    <td>Subtotal:</td>
+                                    <td>$${subtotal.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tax (8%):</td>
+                                    <td>$${tax.toFixed(2)}</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>TOTAL DUE:</td>
+                                    <td>$${total.toFixed(2)}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="payment-methods">
+                            <h3>💳 Payment Methods & Procedures</h3>
+                            
+                            <div class="payment-option">
+                                <h4>1. Bank Wire Transfer</h4>
+                                <p><strong>Bank Name:</strong> Chase Bank</p>
+                                <p><strong>Account Name:</strong> Net World Ship LLC</p>
+                                <p><strong>Account Number:</strong> 1234567890</p>
+                                <p><strong>Routing Number:</strong> 021000021</p>
+                                <p><strong>SWIFT Code:</strong> CHASUS33</p>
+                                <p><em>Please include tracking number ${shipment.tracking_number} in transfer memo</em></p>
+                            </div>
+
+                            <div class="payment-option">
+                                <h4>2. Credit/Debit Card</h4>
+                                <p>Call our payment hotline: <strong>+1 (800) 999-0000</strong></p>
+                                <p>Available 24/7 for secure card payments</p>
+                                <p>Reference: ${shipment.tracking_number}</p>
+                            </div>
+
+                            <div class="payment-option">
+                                <h4>3. PayPal / Zelle</h4>
+                                <p><strong>PayPal:</strong> payments@networldship.com</p>
+                                <p><strong>Zelle:</strong> +1 (800) 999-0000</p>
+                                <p>Include tracking number in payment notes</p>
+                            </div>
+
+                            <div class="payment-option">
+                                <h4>4. Cryptocurrency (Bitcoin/USDT)</h4>
+                                <p><strong>BTC Address:</strong> bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</p>
+                                <p><strong>USDT (TRC20):</strong> TY2xKgdyGjrsqtzq2N0yrf2493p83kkFjHx0wLh</p>
+                                <p>Email payment confirmation to: payments@networldship.com</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 30px; padding: 20px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <h4 style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px;">⚠️ Important Notice</h4>
+                            <p style="margin: 0; font-size: 13px; color: #991b1b; line-height: 1.6;">
+                                Your shipment has arrived at the destination facility and is awaiting payment clearance. 
+                                Please complete payment within <strong>72 hours</strong> to avoid storage fees ($25/day after grace period). 
+                                Once payment is confirmed, your shipment will be released for final delivery.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p><strong>Net World Ship</strong></p>
+                        <p>12 Harbor Boulevard, Long Beach, CA 90802</p>
+                        <p>📧 support@networldship.com | 📞 +1 (800) 999-0000</p>
+                        <p style="margin-top: 10px;">Track your shipment: ${BASE_URL}/index.html?track=${shipment.tracking_number}</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        // Send email with invoice
+        if (emailTransporter) {
+            const mailOptions = {
+                from: `Net World Ship <${EMAIL_CONFIG.user}>`,
+                to: recipient_email,
+                subject: `🚨 Payment Required - Shipment ${shipment.tracking_number} Has Arrived`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <div style="background: #3b82f6; color: white; padding: 20px; text-align: center;">
+                            <h2 style="margin: 0;">📦 Shipment Arrival Notification</h2>
+                        </div>
+                        <div style="padding: 30px; background: #ffffff; border: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 10px 0; font-size: 16px;">Dear ${recipient_name},</p>
+                            <p style="margin: 0 0 20px 0; line-height: 1.6; color: #4b5563;">
+                                Great news! Your shipment <strong>${shipment.tracking_number}</strong> has arrived at our facility in <strong>${shipment.current_location || shipment.destination}</strong> and is ready for final delivery.
+                            </p>
+                            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+                                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                                    <strong>⚠️ Action Required:</strong> Please review the attached billing invoice and complete payment to release your shipment for delivery.
+                                </p>
+                            </div>
+                            <div style="margin: 20px 0; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                                <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280;"><strong>Shipment Details:</strong></p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Tracking:</strong> ${shipment.tracking_number}</p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Origin:</strong> ${shipment.origin}</p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Destination:</strong> ${shipment.destination}</p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Status:</strong> <span style="color: #f59e0b; font-weight: 600;">ARRIVED - AWAITING PAYMENT</span></p>
+                            </div>
+                            <p style="margin: 20px 0 10px 0; font-size: 14px; color: #4b5563;">
+                                Please find the detailed billing invoice attached to this email. Multiple payment methods are available for your convenience.
+                            </p>
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="${BASE_URL}/index.html?track=${shipment.tracking_number}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                                    Track Shipment Online
+                                </a>
+                            </div>
+                            <p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; line-height: 1.6;">
+                                If you have any questions or need assistance with payment, please don't hesitate to contact us at <strong>support@networldship.com</strong> or call <strong>+1 (800) 999-0000</strong>.
+                            </p>
+                        </div>
+                        <div style="text-align: center; padding: 20px; font-size: 12px; color: #9ca3af;">
+                            Net World Ship Team<br>
+                            12 Harbor Boulevard, Long Beach, CA 90802<br>
+                            support@networldship.com | +1 (800) 999-0000
+                        </div>
+                    </div>
+                `,
+                attachments: [{
+                    filename: `Invoice-${shipment.tracking_number}.html`,
+                    content: invoiceHTML,
+                    contentType: 'text/html'
+                }]
+            };
+
+            await emailTransporter.sendMail(mailOptions);
+            
+            // Log notification
+            await pool.query(
+                `INSERT INTO notifications (shipment_id, recipient_email, recipient_type, subject, message, status)
+                 VALUES ($1, $2, $3, $4, $5, 'sent')`,
+                [shipment_id, recipient_email, recipient_type, mailOptions.subject, 'Arrival notification with billing invoice']
+            );
+
+            res.json({ success: true, message: 'Arrival notification with invoice sent successfully' });
+        } else {
+            res.status(500).json({ error: 'Email service not configured' });
+        }
+    } catch (error) {
+        console.error('Error sending arrival notification:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Serve index.html for the root route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
