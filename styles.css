@@ -1313,6 +1313,36 @@ body {
     
     .nav {
         display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: var(--bg-primary);
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        z-index: 999;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .nav.active {
+        display: flex !important;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+    }
+    
+    .nav-links a {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        width: 100%;
+    }
+    
+    .nav-links a:hover {
+        background: rgba(99, 102, 241, 0.1);
     }
     
     .header-actions {
