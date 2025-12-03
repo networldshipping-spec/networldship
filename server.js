@@ -257,8 +257,9 @@ app.get('/api/tracking/:trackingNumber', async (req, res) => {
         }
         
         // Get tracking events/timeline
+        // Order by id DESC to show most recent updates first (based on insertion order, not event_date)
         const eventsResult = await pool.query(
-            'SELECT * FROM tracking_events WHERE shipment_id = $1 ORDER BY event_date DESC',
+            'SELECT * FROM tracking_events WHERE shipment_id = $1 ORDER BY id DESC',
             [shipmentResult.rows[0].id]
         );
         
