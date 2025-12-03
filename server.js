@@ -1041,11 +1041,33 @@ app.post('/api/send-arrival-notification', requireAuth, async (req, res) => {
                                 </p>
                             </div>
                             <div style="margin: 20px 0; padding: 15px; background: #f9fafb; border-radius: 8px;">
-                                <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280;"><strong>Shipment Details:</strong></p>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280;"><strong>Shipment Details:</strong></p>
                                 <p style="margin: 5px 0; font-size: 14px;"><strong>Tracking:</strong> ${shipment.tracking_number}</p>
                                 <p style="margin: 5px 0; font-size: 14px;"><strong>Origin:</strong> ${shipment.origin}</p>
                                 <p style="margin: 5px 0; font-size: 14px;"><strong>Destination:</strong> ${shipment.destination}</p>
                                 <p style="margin: 5px 0; font-size: 14px;"><strong>Status:</strong> <span style="color: #f59e0b; font-weight: 600;">ARRIVED - AWAITING PAYMENT</span></p>
+                            </div>
+
+                            <div style="margin: 20px 0; padding: 15px; background: #eff6ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #1f2937; font-weight: 600;">📋 Sender Information:</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Name:</strong> ${shipment.sender_name || 'N/A'}</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Email:</strong> ${shipment.sender_email || 'N/A'}</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Phone:</strong> ${shipment.sender_phone || 'N/A'}</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Location:</strong> ${shipment.sender_city || ''}, ${shipment.sender_country || ''}</p>
+                            </div>
+
+                            <div style="margin: 20px 0; padding: 15px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #1f2937; font-weight: 600;">👤 Receiver Information:</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Name:</strong> ${shipment.receiver_name || 'N/A'}</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Email:</strong> ${shipment.receiver_email || 'N/A'}</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Phone:</strong> ${shipment.receiver_phone || 'N/A'}</p>
+                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Location:</strong> ${shipment.receiver_city || ''}, ${shipment.receiver_country || ''}</p>
+                            </div>
+
+                            <div style="margin: 20px 0; padding: 20px; background: #fef2f2; border-radius: 8px; border: 2px solid #ef4444;">
+                                <p style="margin: 0 0 8px 0; font-size: 16px; color: #991b1b; font-weight: 600; text-align: center;">💰 PAYMENT AMOUNT REQUIRED</p>
+                                <p style="margin: 0; font-size: 28px; color: #dc2626; font-weight: 700; text-align: center;">$${total.toFixed(2)} USD</p>
+                                <p style="margin: 10px 0 0 0; font-size: 12px; color: #991b1b; text-align: center;">Due within 72 hours to avoid storage fees</p>
                             </div>
                             <p style="margin: 20px 0 10px 0; font-size: 14px; color: #4b5563;">
                                 Please find the detailed billing invoice attached to this email. Multiple payment methods are available for your convenience.
