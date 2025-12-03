@@ -11,6 +11,7 @@ const trackingSection = document.querySelector('.tracking-section');
 const contactForm = document.getElementById('contactForm');
 const menuToggle = document.getElementById('menuToggle');
 const nav = document.querySelector('.nav');
+const navOverlay = document.getElementById('navOverlay');
 const toast = document.getElementById('toast');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const languageBtn = document.getElementById('languageBtn');
@@ -36,6 +37,21 @@ function setupEventListeners() {
     
     menuToggle.addEventListener('click', () => {
         nav.classList.toggle('active');
+        navOverlay.classList.toggle('active');
+    });
+    
+    // Close menu when overlay is clicked
+    navOverlay.addEventListener('click', () => {
+        nav.classList.remove('active');
+        navOverlay.classList.remove('active');
+    });
+    
+    // Close menu when a nav link is clicked
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            nav.classList.remove('active');
+            navOverlay.classList.remove('active');
+        });
     });
     
     // Smooth scroll for navigation links
