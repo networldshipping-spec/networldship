@@ -129,8 +129,12 @@ function displayTrackingResults(data) {
     const statusClass = shipment.status.toLowerCase();
     const statusText = shipment.status.replace('-', ' ').toUpperCase();
     
-    // Determine active timeline item (most recent - first in array since DESC order)
-    const timelineHTML = timeline.map((item, index) => `
+    // Separate creation event from updates
+    const creationEvent = timeline.find(item => item.status === 'shipment-created');
+    const updateEvents = timeline.filter(item => item.status !== 'shipment-created');
+    
+    // Build timeline HTML: updates first (DESC order), then creation at bottom
+    const updatesHTML = updateEvents.map((item, index) => `
         <div class="timeline-item ${index === 0 ? 'active' : ''}">
             <div class="timeline-marker"></div>
             <div class="timeline-content">
@@ -141,6 +145,20 @@ function displayTrackingResults(data) {
             </div>
         </div>
     `).join('');
+    
+    const creationHTML = creationEvent ? `
+        <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">${formatDateTime(creationEvent.event_date)}</div>
+                <div class="timeline-status">${creationEvent.status}</div>
+                <div class="timeline-location">${creationEvent.location}</div>
+                ${creationEvent.description ? `<div class="timeline-description" style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">${creationEvent.description}</div>` : ''}
+            </div>
+        </div>
+    ` : '';
+    
+    const timelineHTML = updatesHTML + creationHTML;
     
     trackingResults.innerHTML = `
         <div class="tracking-card">
