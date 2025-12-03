@@ -65,10 +65,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupForms();
     loadInboxBadge();
     
-    // Set minimum date for delivery
-    const dateInput = document.querySelector('input[type="date"]');
-    if (dateInput) {
-        dateInput.min = new Date().toISOString().split('T')[0];
+    // Set default creation date and time to current (allow any date - past, present, or future)
+    const creationDateInput = document.getElementById('creation_date');
+    const creationTimeInput = document.getElementById('creation_time');
+    if (creationDateInput && creationTimeInput) {
+        const now = new Date();
+        creationDateInput.value = now.toISOString().split('T')[0];
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        creationTimeInput.value = `${hours}:${minutes}`;
     }
     
     // Refresh inbox badge every 30 seconds
@@ -286,6 +291,13 @@ function openEditModal(shipment) {
     document.getElementById('editCurrentLocation').value = shipment.current_location || '';
     document.getElementById('editStatus').value = shipment.status || '';
     document.getElementById('editEstimatedDelivery').value = shipment.estimated_delivery ? shipment.estimated_delivery.split('T')[0] : '';
+    
+    // Set current date and time for update timestamp
+    const now = new Date();
+    document.getElementById('editUpdateDate').value = now.toISOString().split('T')[0];
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('editUpdateTime').value = `${hours}:${minutes}`;
     
     // Show modal
     document.getElementById('editModal').classList.add('active');
@@ -517,6 +529,10 @@ async function handleCreateShipment(e) {
             status: formData.get('status'),
             estimated_delivery: formData.get('estimated_delivery') || null,
             
+            // Creation date and time
+            creation_date: formData.get('creation_date'),
+            creation_time: formData.get('creation_time'),
+            
             // Sender info
             sender_name: formData.get('sender_name'),
             sender_email: formData.get('sender_email'),
@@ -598,19 +614,54 @@ async function uploadFile(file, type) {
 
 async function createInitialEvent(shipmentId, shipmentData) {
     try {
-        await fetch(`${API_BASE_URL}/tracking-events`, {
+        // Use the custom creation date/time if provided
+        const eventDate = shipmentData.creation_date && shipmentData.creation_time 
+            ? `${shipmentData.creation_date}T${shipmentData.creation_time}:00` 
+            : new Date().toISOString();
+        
+        // Generate description based on status
+        const statusDescriptions = {
+            'shipment-created': 'Shipment created and processing initiated',
+            'processing': 'Shipment processing in progress',
+            'pending': 'Shipment pending verification',
+            'custom-check': 'Package under customs inspection',
+            'detained': 'Shipment detained for inspection',
+            'in-transit': `Package in transit to ${shipmentData.destination}`,
+            'out-for-delivery': `Package out for delivery to ${shipmentData.destination}`,
+            'arrived': `Package arrived at ${shipmentData.origin}`,
+            'awaiting-clearance': 'Awaiting customs clearance',
+            'cleared': 'Customs clearance completed',
+            'awaiting-payment': 'Awaiting payment confirmation',
+            'payment-received': 'Payment received and confirmed',
+            'delivered': `Package successfully delivered to ${shipmentData.destination}`
+        };
+        
+        const description = statusDescriptions[shipmentData.status] || `Shipment created at ${shipmentData.origin}`;
+        
+        const eventData = {
+            shipment_id: shipmentId,
+            event_date: eventDate,
+            status: shipmentData.status,
+            location: shipmentData.origin,
+            description: description
+        };
+        
+        console.log('Creating initial event with data:', eventData);
+            
+        const response = await fetch(`${API_BASE_URL}/tracking-events`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                shipment_id: shipmentId,
-                event_date: new Date().toISOString(),
-                status: 'Package received',
-                location: shipmentData.origin,
-                description: `Shipment created at ${shipmentData.origin}`
-            })
+            body: JSON.stringify(eventData)
         });
+        
+        const result = await response.json();
+        console.log('Initial event creation result:', result);
+        
+        if (!result.success) {
+            console.error('Failed to create initial event:', result.error);
+        }
     } catch (error) {
-        console.error('Error creating event:', error);
+        console.error('Error creating initial event:', error);
     }
 }
 
@@ -631,7 +682,9 @@ async function updateShipment(e) {
         destination: formData.get('destination'),
         current_location: formData.get('current_location') || formData.get('origin'),
         status: formData.get('status'),
-        estimated_delivery: formData.get('estimated_delivery') || null
+        estimated_delivery: formData.get('estimated_delivery') || null,
+        update_date: formData.get('update_date'),
+        update_time: formData.get('update_time')
     }
     
     showLoading(true);
@@ -687,13 +740,18 @@ async function updateShipment(e) {
             }
             
             if (hasChanges) {
+                // Use the custom update date/time from the form
+                const eventDate = data.update_date && data.update_time 
+                    ? `${data.update_date}T${data.update_time}:00` 
+                    : new Date().toISOString();
+                
                 // Add tracking event to preserve history
                 const eventResponse = await fetch(`${API_BASE_URL}/tracking-events`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         shipment_id: shipmentId,
-                        event_date: new Date().toISOString(),
+                        event_date: eventDate,
                         status: newData.status,
                         location: newData.current_location,
                         description: description

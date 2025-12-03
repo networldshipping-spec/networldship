@@ -13,11 +13,8 @@ yarn-error.log*
 RENDER_DATABASE_CREDENTIALS.md
 
 # Uploads
-uploads/
-*.pdf
-*.jpg
-*.jpeg
-*.png
+# Comment out to push uploads to production, then uncomment after
+# uploads/
 
 # Operating System
 .DS_Store

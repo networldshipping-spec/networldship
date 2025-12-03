@@ -61,7 +61,9 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + file.originalname);
+        // Remove spaces and special characters from filename
+        const sanitizedFilename = file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.-]/g, '');
+        cb(null, uniqueSuffix + '-' + sanitizedFilename);
     }
 });
 
@@ -300,8 +302,18 @@ app.post('/api/shipments', requireAuth, async (req, res) => {
             sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
             receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
             package_weight, package_dimensions, package_description, shipping_cost,
-            package_image_path, package_image_filename
+            package_image_path, package_image_filename,
+            creation_date, creation_time
         } = req.body;
+        
+        // Build created_at timestamp from creation_date and creation_time if provided
+        let createdAtValue = 'CURRENT_TIMESTAMP';
+        let createdAtParam = null;
+        
+        if (creation_date && creation_time) {
+            createdAtValue = '$26';
+            createdAtParam = `${creation_date}T${creation_time}:00`;
+        }
         
         const result = await pool.query(
             `INSERT INTO shipments 
@@ -309,28 +321,26 @@ app.post('/api/shipments', requireAuth, async (req, res) => {
              sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
              receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
              package_weight, package_dimensions, package_description, shipping_cost,
-             package_image_path, package_image_filename) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25) 
+             package_image_path, package_image_filename, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, ${createdAtValue}) 
             RETURNING *`,
-            [tracking_number, origin, destination, carrier, status, estimated_delivery, current_location,
-             sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
-             receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
-             package_weight, package_dimensions, package_description, shipping_cost,
-             package_image_path, package_image_filename]
+            createdAtParam 
+                ? [tracking_number, origin, destination, carrier, status, estimated_delivery, current_location,
+                   sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
+                   receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
+                   package_weight, package_dimensions, package_description, shipping_cost,
+                   package_image_path, package_image_filename, createdAtParam]
+                : [tracking_number, origin, destination, carrier, status, estimated_delivery, current_location,
+                   sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
+                   receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
+                   package_weight, package_dimensions, package_description, shipping_cost,
+                   package_image_path, package_image_filename]
         );
         
         const newShipment = result.rows[0];
         
-        // Automatically create initial tracking event
-        const initialLocation = current_location || origin;
-        const initialDescription = `Shipment created and received at ${initialLocation}`;
-        
-        await pool.query(
-            `INSERT INTO tracking_events 
-            (shipment_id, event_date, status, location, description) 
-            VALUES ($1, CURRENT_TIMESTAMP, $2, $3, $4)`,
-            [newShipment.id, status, initialLocation, initialDescription]
-        );
+        // Automatically create initial tracking event (will be handled by frontend with custom date/time)
+        // Note: The frontend createInitialEvent function will use the custom creation date/time
         
         res.json({ success: true, data: newShipment });
     } catch (error) {
@@ -389,7 +399,7 @@ app.put('/api/shipments/:id', requireAuth, async (req, res) => {
         const { id } = req.params;
         const {
             tracking_number, carrier, origin, destination, current_location,
-            status, estimated_delivery
+            status, estimated_delivery, update_date, update_time
         } = req.body;
         
         // Get old data first
@@ -401,24 +411,49 @@ app.put('/api/shipments/:id', requireAuth, async (req, res) => {
         
         const oldData = oldDataResult.rows[0];
         
-        // Update shipment (no image changes allowed in update)
-        const updateQuery = `UPDATE shipments 
-            SET tracking_number = $1, carrier = $2, origin = $3, destination = $4, 
-                current_location = $5, status = $6, estimated_delivery = $7, 
-                updated_at = CURRENT_TIMESTAMP
-            WHERE id = $8 
-            RETURNING *`;
+        // Build updated_at timestamp from update_date and update_time if provided
+        let updatedAtValue = null;
+        if (update_date && update_time) {
+            updatedAtValue = `${update_date}T${update_time}:00`;
+        }
         
-        const result = await pool.query(updateQuery, [
-            tracking_number,
-            carrier,
-            origin,
-            destination,
-            current_location || origin,
-            status,
-            estimated_delivery || null,
-            id
-        ]);
+        // Update shipment (no image changes allowed in update)
+        const updateQuery = updatedAtValue
+            ? `UPDATE shipments 
+                SET tracking_number = $1, carrier = $2, origin = $3, destination = $4, 
+                    current_location = $5, status = $6, estimated_delivery = $7, 
+                    updated_at = $8
+                WHERE id = $9 
+                RETURNING *`
+            : `UPDATE shipments 
+                SET tracking_number = $1, carrier = $2, origin = $3, destination = $4, 
+                    current_location = $5, status = $6, estimated_delivery = $7, 
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = $8 
+                RETURNING *`;
+        
+        const result = updatedAtValue
+            ? await pool.query(updateQuery, [
+                tracking_number,
+                carrier,
+                origin,
+                destination,
+                current_location || origin,
+                status,
+                estimated_delivery || null,
+                updatedAtValue,
+                id
+            ])
+            : await pool.query(updateQuery, [
+                tracking_number,
+                carrier,
+                origin,
+                destination,
+                current_location || origin,
+                status,
+                estimated_delivery || null,
+                id
+            ]);
         
         res.json({ 
             success: true, 

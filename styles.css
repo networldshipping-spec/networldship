@@ -1471,20 +1471,51 @@ body {
     }
     
     /* Package Image */
+    #package-tab {
+        display: none;
+    }
+    
+    #package-tab.active {
+        display: block !important;
+    }
+    
     .package-image-section {
         padding: 1.5rem;
+        display: block !important;
+    }
+    
+    .package-viewer {
+        display: block !important;
+        width: 100%;
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 1rem;
+    }
+    
+    .package-header {
+        display: flex !important;
+        margin-bottom: 1rem;
     }
     
     .package-image-container {
         width: 100%;
         max-width: 100%;
-        overflow: hidden;
+        overflow: visible !important;
+        display: block !important;
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 16px;
+        margin-bottom: 1rem;
     }
     
     .package-image {
         max-height: 300px;
-        width: 100%;
+        width: 100% !important;
+        height: auto !important;
         object-fit: contain;
+        display: block !important;
+        margin: 0 auto;
+        background: rgba(0, 0, 0, 0.2);
     }
     
     .package-info {
@@ -1755,17 +1786,42 @@ body {
     }
     
     /* Package Image */
+    #package-tab.active {
+        display: block !important;
+    }
+    
+    .package-viewer {
+        width: 100% !important;
+        display: block !important;
+    }
+    
     .package-image-container {
         border-radius: 12px;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
     
     .package-image {
         max-height: 250px;
-        width: 100%;
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        object-fit: contain !important;
     }
     
     .package-info {
         padding: 1rem;
+        display: grid !important;
+    }
+    
+    .no-package-image {
+        display: flex !important;
     }
     
     .package-detail {
