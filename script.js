@@ -202,6 +202,24 @@ function displayTrackingResults(data) {
                     </div>
                 </div>
             </div>
+
+            <!-- Package Information -->
+            <div class="tracking-info" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <div class="info-item">
+                    <div class="info-label">Sender</div>
+                    <div class="info-value">
+                        <i class="fas fa-user" style="color: var(--primary-color);"></i>
+                        ${shipment.sender_name || 'N/A'}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Receiver</div>
+                    <div class="info-value">
+                        <i class="fas fa-user-tag" style="color: var(--secondary-color);"></i>
+                        ${shipment.receiver_name || 'N/A'}
+                    </div>
+                </div>
+            </div>
             
             <!-- Navigation Tabs -->
             <div class="tracking-tabs">
