@@ -968,20 +968,19 @@ app.post('/api/send-arrival-notification', requireAuth, async (req, res) => {
                             <h3>💳 Payment Methods & Procedures</h3>
                             
                             <div class="payment-option">
-                                <h4>1. Bank Wire Transfer</h4>
+                                <h4>1. Bank Transfer / Cash Deposit</h4>
                                 <p><strong>Bank Name:</strong> Chase Bank</p>
                                 <p><strong>Account Name:</strong> Net World Ship LLC</p>
                                 <p><strong>Account Number:</strong> 1234567890</p>
                                 <p><strong>Routing Number:</strong> 021000021</p>
                                 <p><strong>SWIFT Code:</strong> CHASUS33</p>
-                                <p><em>Please include tracking number ${shipment.tracking_number} in transfer memo</em></p>
+                                <p><em>Please include tracking number ${shipment.tracking_number} in transfer memo or deposit slip</em></p>
                             </div>
 
-                            <div class="payment-option">
-                                <h4>2. Credit/Debit Card</h4>
-                                <p>Call our payment hotline: <strong>+1 (800) 999-0000</strong></p>
-                                <p>Available 24/7 for secure card payments</p>
-                                <p>Reference: ${shipment.tracking_number}</p>
+                            <div class="payment-option" style="opacity: 0.6;">
+                                <h4>2. Credit / Debit Card</h4>
+                                <p style="color: #ef4444; font-weight: 600;">⚠️ Currently Unavailable</p>
+                                <p>This payment method is temporarily unavailable. Please use alternative payment options below.</p>
                             </div>
 
                             <div class="payment-option">

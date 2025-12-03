@@ -1434,8 +1434,8 @@ Status: ARRIVED - AWAITING PAYMENT
 Your package is ready for final delivery. Please review the attached billing invoice and complete payment within 72 hours to avoid storage fees.
 
 💳 PAYMENT METHODS INCLUDED:
-• Bank Wire Transfer
-• Credit/Debit Card (24/7 Hotline)
+• Bank Transfer / Cash Deposit
+• Credit / Debit Card (Currently Unavailable)
 • PayPal / Zelle
 • Cryptocurrency (BTC/USDT)
 
