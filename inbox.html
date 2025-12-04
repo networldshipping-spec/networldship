@@ -672,6 +672,7 @@
             <a href="inbox.html" class="nav-item active">
                 <i class="fas fa-comments"></i>
                 <span>Chat</span>
+                <span class="chat-badge" id="chatNavBadge" style="display: none; background: #ef4444; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">0</span>
             </a>
         </nav>
         
@@ -862,6 +863,7 @@
                 // Mark as read
                 await fetch(`/api/conversations/${trackingNumber}/read`, { method: 'POST' });
                 await loadConversations(); // Refresh list
+                await updateChatBadge(); // Update badge count
             } catch (error) {
                 console.error('Error loading conversation:', error);
             }
@@ -998,6 +1000,7 @@
                     selectedFiles = [];
                     updateAttachmentsPreview();
                     await loadConversation(currentConversation.tracking_number);
+                    await updateChatBadge(); // Update badge count
                 } else {
                     alert('Failed to send reply');
                 }
@@ -1103,15 +1106,36 @@
             });
         }
 
+        // Update chat badge
+        async function updateChatBadge() {
+            try {
+                const response = await fetch('/api/conversations/unread/count');
+                const data = await response.json();
+                const count = data.count || 0;
+                
+                const chatNavBadge = document.getElementById('chatNavBadge');
+                if (chatNavBadge) {
+                    chatNavBadge.textContent = count;
+                    chatNavBadge.style.display = count > 0 ? 'inline-block' : 'none';
+                }
+            } catch (error) {
+                console.error('Error updating chat badge:', error);
+            }
+        }
+
         // Initialize
         (async () => {
             const isAuthenticated = await checkAuth();
             if (!isAuthenticated) return;
             
             loadConversations();
+            updateChatBadge();
             
             // Refresh every 30 seconds
-            setInterval(loadConversations, 30000);
+            setInterval(() => {
+                loadConversations();
+                updateChatBadge();
+            }, 30000);
         })();
     </script>
 </body>

@@ -860,7 +860,7 @@ app.get('/api/conversations/unread/count', requireAuth, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT COUNT(*) as count FROM conversations 
-             WHERE sender_type != 'admin'`
+             WHERE sender_type != 'admin' AND is_read = false`
         );
         res.json({ count: parseInt(result.rows[0].count) });
     } catch (error) {
