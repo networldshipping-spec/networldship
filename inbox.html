@@ -801,10 +801,11 @@
                 return;
             }
 
-            // Group conversations by tracking number
+            // Group conversations by tracking number or email (for contact form messages)
             const groupedConversations = conversations.reduce((acc, msg) => {
-                if (!acc[msg.tracking_number]) {
-                    acc[msg.tracking_number] = {
+                const groupKey = msg.tracking_number || `contact_${msg.sender_email}`;
+                if (!acc[groupKey]) {
+                    acc[groupKey] = {
                         tracking_number: msg.tracking_number,
                         shipment_id: msg.shipment_id,
                         latest_message: msg,
@@ -812,13 +813,13 @@
                         messages: []
                     };
                 }
-                acc[msg.tracking_number].messages.push(msg);
+                acc[groupKey].messages.push(msg);
                 if (!msg.is_read && msg.sender_type !== 'admin') {
-                    acc[msg.tracking_number].unread_count++;
+                    acc[groupKey].unread_count++;
                 }
                 // Update latest message if newer
-                if (new Date(msg.created_at) > new Date(acc[msg.tracking_number].latest_message.created_at)) {
-                    acc[msg.tracking_number].latest_message = msg;
+                if (new Date(msg.created_at) > new Date(acc[groupKey].latest_message.created_at)) {
+                    acc[groupKey].latest_message = msg;
                 }
                 return acc;
             }, {});
@@ -829,11 +830,12 @@
             container.innerHTML = conversationGroups.map(group => {
                 const msg = group.latest_message;
                 const isUnread = group.unread_count > 0;
-                const isActive = currentConversation?.tracking_number === group.tracking_number;
+                const groupKey = msg.tracking_number || `contact_${msg.sender_email}`;
+                const isActive = currentConversation?.groupKey === groupKey;
                 
                 return `
                     <div class="conversation-item ${isUnread ? 'unread' : ''} ${isActive ? 'active' : ''}" 
-                         onclick="loadConversation('${group.tracking_number}')">
+                         onclick="loadConversationByKey('${groupKey.replace(/'/g, "\\'")}')">  
                         <div class="conversation-header">
                             <span class="conversation-name">
                                 ${msg.sender_name}
@@ -841,19 +843,30 @@
                             </span>
                             <span class="conversation-time">${formatTime(msg.created_at)}</span>
                         </div>
-                        <div class="conversation-tracking">📦 ${msg.tracking_number}</div>
+                        <div class="conversation-tracking">${msg.tracking_number ? `📦 ${msg.tracking_number}` : `✉️ ${msg.sender_email}`}</div>
                         <div class="conversation-preview">${msg.message}</div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Load specific conversation
-        async function loadConversation(trackingNumber) {
+        // Load specific conversation by key (tracking number or email)
+        async function loadConversationByKey(groupKey) {
             try {
-                const response = await fetch(`/api/conversations/${trackingNumber}`);
-                const messages = await response.json();
-                currentConversation = { tracking_number: trackingNumber, messages };
+                // Find messages for this group
+                const groupMessages = conversations.filter(msg => {
+                    const msgKey = msg.tracking_number || `contact_${msg.sender_email}`;
+                    return msgKey === groupKey;
+                });
+                
+                if (groupMessages.length === 0) return;
+                
+                currentConversation = { 
+                    groupKey: groupKey,
+                    tracking_number: groupMessages[0].tracking_number,
+                    sender_email: groupMessages[0].sender_email,
+                    messages: groupMessages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                };
                 
                 // Show messages panel
                 document.querySelector('.inbox-container').classList.add('show-messages');
@@ -861,12 +874,21 @@
                 renderMessages();
 
                 // Mark as read
-                await fetch(`/api/conversations/${trackingNumber}/read`, { method: 'POST' });
+                const unreadMessages = groupMessages.filter(msg => !msg.is_read && msg.sender_type !== 'admin');
+                for (const msg of unreadMessages) {
+                    await fetch(`/api/conversations/${msg.id}/mark-read`, { method: 'POST' });
+                }
+                
                 await loadConversations(); // Refresh list
                 await updateChatBadge(); // Update badge count
             } catch (error) {
                 console.error('Error loading conversation:', error);
             }
+        }
+
+        // Legacy function for backwards compatibility
+        async function loadConversation(trackingNumber) {
+            await loadConversationByKey(trackingNumber);
         }
 
         // Render messages
@@ -882,7 +904,7 @@
                         </button>
                         <div>
                             <h2 style="margin: 0;">Conversation: ${messages[0]?.sender_name || 'Unknown'}</h2>
-                            <div class="messages-subheader">📦 Tracking: ${currentConversation.tracking_number}</div>
+                            <div class="messages-subheader">${currentConversation.tracking_number ? `📦 Tracking: ${currentConversation.tracking_number}` : `✉️ Email: ${currentConversation.sender_email}`}</div>
                         </div>
                     </div>
                 </div>
@@ -981,7 +1003,8 @@
 
             try {
                 const formData = new FormData();
-                formData.append('tracking_number', currentConversation.tracking_number);
+                formData.append('tracking_number', currentConversation.tracking_number || '');
+                formData.append('sender_email', currentConversation.sender_email || '');
                 formData.append('message', replyText);
                 
                 // Add attachments
@@ -999,7 +1022,8 @@
                     document.getElementById('fileInput').value = '';
                     selectedFiles = [];
                     updateAttachmentsPreview();
-                    await loadConversation(currentConversation.tracking_number);
+                    await loadConversations();
+                    await loadConversationByKey(currentConversation.groupKey);
                     await updateChatBadge(); // Update badge count
                 } else {
                     alert('Failed to send reply');

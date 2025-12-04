@@ -687,9 +687,9 @@ app.post('/api/contact-message', async (req, res) => {
         // Insert message into conversations table
         await pool.query(
             `INSERT INTO conversations 
-             (shipment_id, sender_name, sender_email, subject, message, sender_type, is_read)
-             VALUES ($1, $2, $3, $4, $5, 'customer', false)`,
-            [shipmentId, sender_name, sender_email, subject, message]
+             (shipment_id, tracking_number, sender_name, sender_email, subject, message, sender_type, is_read)
+             VALUES ($1, $2, $3, $4, $5, $6, 'customer', false)`,
+            [shipmentId, tracking_number, sender_name, sender_email, subject, message]
         );
         
         console.log(`📧 Contact form message received from ${sender_name} (${sender_email})`);
@@ -741,7 +741,11 @@ app.get('/api/conversations/:trackingNumber', requireAuth, async (req, res) => {
 app.post('/api/conversations/:trackingNumber/read', async (req, res) => {
     try {
         const { trackingNumber } = req.params;
-        // is_read column removed from schema - no longer tracking read status
+        await pool.query(
+            `UPDATE conversations SET is_read = true 
+             WHERE tracking_number = $1 AND sender_type != 'admin'`,
+            [trackingNumber]
+        );
         res.json({ success: true });
     } catch (error) {
         console.error('Error marking conversation as read:', error);
@@ -749,9 +753,24 @@ app.post('/api/conversations/:trackingNumber/read', async (req, res) => {
     }
 });
 
+// Mark individual message as read
+app.post('/api/conversations/:id/mark-read', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query(
+            `UPDATE conversations SET is_read = true WHERE id = $1`,
+            [id]
+        );
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error marking message as read:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.post('/api/conversations/reply', requireAuth, attachmentUpload.array('attachments', 5), async (req, res) => {
     try {
-        const { tracking_number, message } = req.body;
+        const { tracking_number, sender_email, message } = req.body;
         const uploadedFiles = req.files || [];
         
         // Prepare attachment info
@@ -762,36 +781,46 @@ app.post('/api/conversations/reply', requireAuth, attachmentUpload.array('attach
             size: file.size
         }));
         
-        // Get shipment details
-        const shipment = await pool.query(
-            'SELECT * FROM shipments WHERE tracking_number = $1',
-            [tracking_number]
-        );
+        let shipmentId = null;
+        let lastCustomerMessage = null;
 
-        if (shipment.rows.length === 0) {
-            return res.status(404).json({ success: false, error: 'Shipment not found' });
+        // Try to find shipment if tracking number provided
+        if (tracking_number) {
+            const shipment = await pool.query(
+                'SELECT * FROM shipments WHERE tracking_number = $1',
+                [tracking_number]
+            );
+
+            if (shipment.rows.length > 0) {
+                shipmentId = shipment.rows[0].id;
+            }
+
+            // Get the most recent customer message
+            lastCustomerMessage = await pool.query(
+                `SELECT * FROM conversations
+                 WHERE tracking_number = $1 AND sender_type != 'admin' 
+                 ORDER BY created_at DESC LIMIT 1`,
+                [tracking_number]
+            );
+        } else if (sender_email) {
+            // For contact form messages without tracking number
+            lastCustomerMessage = await pool.query(
+                `SELECT * FROM conversations
+                 WHERE sender_email = $1 AND sender_type != 'admin' 
+                 ORDER BY created_at DESC LIMIT 1`,
+                [sender_email]
+            );
         }
-
-        const shipmentData = shipment.rows[0];
 
         // Store admin reply in conversations with attachments
         await pool.query(
             `INSERT INTO conversations 
-            (shipment_id, sender_type, message, attachments) 
-            VALUES ($1, 'admin', $2, $3)`,
-            [shipmentData.id, message, JSON.stringify(attachmentInfo)]
+            (shipment_id, tracking_number, sender_email, sender_type, message, attachments) 
+            VALUES ($1, $2, $3, 'admin', $4, $5)`,
+            [shipmentId, tracking_number || null, sender_email || null, message, JSON.stringify(attachmentInfo)]
         );
 
-        // Get the most recent customer message to find who to reply to
-        const lastCustomerMessage = await pool.query(
-            `SELECT c.* FROM conversations c
-             JOIN shipments s ON c.shipment_id = s.id
-             WHERE s.tracking_number = $1 AND c.sender_type != 'admin' 
-             ORDER BY created_at DESC LIMIT 1`,
-            [tracking_number]
-        );
-
-        if (lastCustomerMessage.rows.length > 0) {
+        if (lastCustomerMessage && lastCustomerMessage.rows.length > 0) {
             const customer = lastCustomerMessage.rows[0];
             const customerEmail = customer.sender_email;
             const customerName = customer.sender_name;
