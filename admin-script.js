@@ -1596,11 +1596,11 @@ async function loadNotificationHistory() {
             tableBody.innerHTML = result.data.map(notif => `
                 <tr>
                     <td>${formatDateTime(notif.sent_at)}</td>
-                    <td><strong>${notif.tracking_number}</strong></td>
-                    <td>${notif.recipient_email}</td>
-                    <td><span class="badge badge-${notif.recipient_type}">${notif.recipient_type.toUpperCase()}</span></td>
-                    <td>${notif.subject}</td>
-                    <td><span class="status-badge delivered">${notif.status.toUpperCase()}</span></td>
+                    <td><strong>${notif.tracking_number || 'N/A'}</strong></td>
+                    <td>${notif.recipient_email || 'N/A'}</td>
+                    <td><span class="badge badge-${notif.recipient_type || 'email'}">${(notif.recipient_type || 'EMAIL').toUpperCase()}</span></td>
+                    <td>${notif.subject || 'No Subject'}</td>
+                    <td><span class="status-badge delivered">${(notif.status || 'sent').toUpperCase()}</span></td>
                 </tr>
             `).join('');
         } else {

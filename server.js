@@ -620,10 +620,13 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
     }
 });
 
-app.get('/api/notifications', async (req, res) => {
+app.get('/api/notifications', requireAuth, async (req, res) => {
     try {
         const result = await pool.query(
-            'SELECT * FROM notifications ORDER BY sent_at DESC LIMIT 100'
+            `SELECT n.*, s.tracking_number 
+             FROM notifications n
+             LEFT JOIN shipments s ON n.shipment_id = s.id
+             ORDER BY n.sent_at DESC LIMIT 100`
         );
         res.json({ success: true, data: result.rows });
     } catch (error) {
