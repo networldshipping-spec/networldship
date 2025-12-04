@@ -283,6 +283,100 @@
             margin-bottom: 16px;
         }
 
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-badge.new {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.replied {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.urgent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .conversation-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        @media (max-width: 1024px) {
+            .inbox-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .conversations-list {
+                max-height: 400px;
+            }
+
+            .messages-panel {
+                min-height: 500px;
+            }
+
+            .search-box input {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .inbox-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .inbox-controls {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .inbox-header {
             padding: 20px;
             background: white;
@@ -298,6 +392,83 @@
             margin: 0;
             font-size: 24px;
             color: #1f2937;
+        }
+
+        .inbox-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 16px 10px 40px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .filter-badge {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .filter-badge:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+        }
+
+        .filter-badge.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .unread-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .conversation-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #6b7280;
         }
 
         .back-link {
@@ -418,10 +589,29 @@
 <body>
     <div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
         <div class="inbox-header">
-            <h1>📧 Inbox</h1>
-            <a href="admin.html" class="back-link">
-                ← Back to Admin Panel
-            </a>
+            <div>
+                <h1>📧 Customer Inbox</h1>
+                <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 14px;">
+                    Manage all customer conversations and inquiries
+                </p>
+            </div>
+            <div class="inbox-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchConversations" placeholder="Search messages...">
+                </div>
+                <select id="filterStatus" class="filter-badge">
+                    <option value="all">All Messages</option>
+                    <option value="unread">Unread Only</option>
+                    <option value="replied">Replied</option>
+                </select>
+                <button onclick="refreshConversations()" class="filter-badge" title="Refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <a href="admin.html" class="filter-badge" title="Back to Admin">
+                    <i class="fas fa-arrow-left"></i> Admin
+                </a>
+            </div>
         </div>
 
         <div class="inbox-container">
@@ -718,6 +908,52 @@
                 window.location.href = '/login.html';
                 return false;
             }
+        }
+
+        // Search conversations
+        let searchTimeout;
+        document.getElementById('searchConversations')?.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = e.target.value.toLowerCase();
+                filterConversations(searchTerm, document.getElementById('filterStatus').value);
+            }, 300);
+        });
+
+        // Filter by status
+        document.getElementById('filterStatus')?.addEventListener('change', (e) => {
+            const searchTerm = document.getElementById('searchConversations').value.toLowerCase();
+            filterConversations(searchTerm, e.target.value);
+        });
+
+        // Filter conversations function
+        function filterConversations(searchTerm = '', statusFilter = 'all') {
+            const container = document.getElementById('conversationsList');
+            const items = container.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const isUnread = item.classList.contains('unread');
+                
+                let matchesSearch = !searchTerm || text.includes(searchTerm);
+                let matchesStatus = statusFilter === 'all' || 
+                                   (statusFilter === 'unread' && isUnread) ||
+                                   (statusFilter === 'replied' && !isUnread);
+                
+                item.style.display = (matchesSearch && matchesStatus) ? 'block' : 'none';
+            });
+        }
+
+        // Refresh conversations
+        function refreshConversations() {
+            const btn = event.target.closest('button');
+            const icon = btn.querySelector('i');
+            icon.style.animation = 'spin 1s linear';
+            loadConversations().then(() => {
+                setTimeout(() => {
+                    icon.style.animation = '';
+                }, 1000);
+            });
         }
 
         // Initialize
