@@ -10,8 +10,7 @@
             display: grid;
             grid-template-columns: 350px 1fr;
             gap: 24px;
-            height: calc(100vh - 240px);
-            margin-top: 20px;
+            height: calc(100vh - 280px);
         }
 
         .conversations-list {
@@ -653,29 +652,30 @@
             </div>
         </header>
 
-        <div class="inbox-header">
-            <div>
-                <p style="margin: 0; color: #6b7280; font-size: 14px;">
-                    Manage all customer conversations and inquiries
-                </p>
-            </div>
-            <div class="inbox-controls">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchConversations" placeholder="Search messages...">
+        <section class="content-section active">
+            <div class="inbox-header">
+                <div>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                        Manage all customer conversations and inquiries
+                    </p>
                 </div>
-                <select id="filterStatus" class="filter-badge">
-                    <option value="all">All Messages</option>
-                    <option value="unread">Unread Only</option>
-                    <option value="replied">Replied</option>
-                </select>
-                <button onclick="refreshConversations()" class="filter-badge" title="Refresh">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
+                <div class="inbox-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchConversations" placeholder="Search messages...">
+                    </div>
+                    <select id="filterStatus" class="filter-badge">
+                        <option value="all">All Messages</option>
+                        <option value="unread">Unread Only</option>
+                        <option value="replied">Replied</option>
+                    </select>
+                    <button onclick="refreshConversations()" class="filter-badge" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <div class="inbox-container">
+            <div class="inbox-container">
             <!-- Conversations List -->
             <div class="conversations-list" id="conversationsList">
                 <div class="loading">
@@ -693,6 +693,7 @@
                 </div>
             </div>
         </div>
+        </section>
     </main>
 
     <script>
