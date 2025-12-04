@@ -135,12 +135,15 @@ pool.connect(async (err, client, release) => {
     } else {
         console.log('✅ Successfully connected to PostgreSQL database: networld');
         
-        // Run fee columns migration
+        // Run migrations
         try {
             await client.query(`ALTER TABLE shipments ADD COLUMN IF NOT EXISTS insurance_fee DECIMAL(10, 2) DEFAULT 25.00`);
             await client.query(`ALTER TABLE shipments ADD COLUMN IF NOT EXISTS customs_fee DECIMAL(10, 2) DEFAULT 50.00`);
             await client.query(`ALTER TABLE shipments ADD COLUMN IF NOT EXISTS handling_fee DECIMAL(10, 2) DEFAULT 15.00`);
             console.log('✅ Fee columns verified/added to shipments table');
+            
+            await client.query(`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS recipient_type VARCHAR(20)`);
+            console.log('✅ recipient_type column verified/added to notifications table');
         } catch (migrationError) {
             console.log('⚠️  Migration note:', migrationError.message);
         }
