@@ -1827,6 +1827,10 @@ body {
 
 .notifications-table-container {
     overflow-x: auto;
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
 }
 
 .notifications-table {
@@ -1836,6 +1840,9 @@ body {
 
 .notifications-table thead {
     background: rgba(99, 102, 241, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .notifications-table th {
@@ -1845,6 +1852,7 @@ body {
     font-weight: 600;
     color: var(--text-primary);
     border-bottom: 2px solid var(--border-color);
+    background: rgba(99, 102, 241, 0.1);
 }
 
 .notifications-table td {
