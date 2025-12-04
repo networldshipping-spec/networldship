@@ -8,9 +8,13 @@
     <style>
         .inbox-container {
             display: grid;
-            grid-template-columns: 350px 1fr;
+            grid-template-columns: 1fr;
             gap: 24px;
             height: calc(100vh - 280px);
+        }
+
+        .inbox-container.show-messages {
+            grid-template-columns: 350px 1fr;
         }
 
         .conversations-list {
@@ -78,9 +82,13 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
+            display: none;
             flex-direction: column;
             border: 1px solid #e5e7eb;
+        }
+
+        .inbox-container.show-messages .messages-panel {
+            display: flex;
         }
 
         .messages-header {
@@ -338,12 +346,20 @@
                 height: auto;
             }
 
+            .inbox-container.show-messages .conversations-list {
+                display: none;
+            }
+
             .conversations-list {
                 max-height: 400px;
             }
 
             .messages-panel {
                 min-height: 500px;
+            }
+
+            #backBtn {
+                display: inline-flex !important;
             }
 
             .search-box input {
@@ -806,6 +822,10 @@
                 const response = await fetch(`/api/conversations/${trackingNumber}`);
                 const messages = await response.json();
                 currentConversation = { tracking_number: trackingNumber, messages };
+                
+                // Show messages panel
+                document.querySelector('.inbox-container').classList.add('show-messages');
+                
                 renderMessages();
 
                 // Mark as read
@@ -823,8 +843,15 @@
             
             messagesPanel.innerHTML = `
                 <div class="messages-header">
-                    <h2>Conversation: ${messages[0]?.sender_name || 'Unknown'}</h2>
-                    <div class="messages-subheader">📦 Tracking: ${currentConversation.tracking_number}</div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button onclick="closeConversation()" class="action-btn" style="display: none;" id="backBtn">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <div>
+                            <h2 style="margin: 0;">Conversation: ${messages[0]?.sender_name || 'Unknown'}</h2>
+                            <div class="messages-subheader">📦 Tracking: ${currentConversation.tracking_number}</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="messages-body" id="messagesBody">
                     ${messages.map(msg => `
@@ -950,6 +977,12 @@
         }
 
         // Format time (e.g., "2 hours ago")
+        // Close conversation (go back to list)
+        function closeConversation() {
+            document.querySelector('.inbox-container').classList.remove('show-messages');
+            currentConversation = null;
+        }
+
         function formatTime(dateString) {
             const date = new Date(dateString);
             const now = new Date();
