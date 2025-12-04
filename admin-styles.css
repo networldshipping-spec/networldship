@@ -1421,6 +1421,25 @@ html {
         overflow-x: hidden;
         max-width: 100%;
     }
+
+    .contact-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .contact-info-panel,
+    .contact-form-panel,
+    .notification-history {
+        padding: 1.25rem;
+    }
+
+    .contact-recipients {
+        grid-template-columns: 1fr;
+    }
+
+    .notifications-table-container {
+        max-height: 400px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1531,6 +1550,20 @@ html {
         bottom: 1rem;
         left: 0.75rem;
         right: 0.75rem;
+    }
+
+    .contact-container {
+        gap: 0.75rem;
+    }
+
+    .contact-info-panel,
+    .contact-form-panel,
+    .notification-history {
+        padding: 1rem;
+    }
+
+    .contact-recipients {
+        grid-template-columns: 1fr;
     }
 }
 
