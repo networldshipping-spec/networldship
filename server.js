@@ -137,12 +137,28 @@ pool.connect(async (err, client, release) => {
         
         // Run migrations
         try {
+            // Create notifications table if it doesn't exist
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id SERIAL PRIMARY KEY,
+                    shipment_id INTEGER NOT NULL,
+                    recipient_email VARCHAR(255) NOT NULL,
+                    recipient_type VARCHAR(50),
+                    subject VARCHAR(500),
+                    message TEXT,
+                    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    status VARCHAR(50) DEFAULT 'sent',
+                    FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE
+                )
+            `);
+            console.log('✅ Notifications table verified/created');
+            
             await client.query(`ALTER TABLE shipments ADD COLUMN IF NOT EXISTS insurance_fee DECIMAL(10, 2) DEFAULT 25.00`);
             await client.query(`ALTER TABLE shipments ADD COLUMN IF NOT EXISTS customs_fee DECIMAL(10, 2) DEFAULT 50.00`);
             await client.query(`ALTER TABLE shipments ADD COLUMN IF NOT EXISTS handling_fee DECIMAL(10, 2) DEFAULT 15.00`);
             console.log('✅ Fee columns verified/added to shipments table');
             
-            await client.query(`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS recipient_type VARCHAR(20)`);
+            await client.query(`ALTER TABLE notifications ADD COLUMN IF NOT EXISTS recipient_type VARCHAR(50)`);
             console.log('✅ recipient_type column verified/added to notifications table');
         } catch (migrationError) {
             console.log('⚠️  Migration note:', migrationError.message);
