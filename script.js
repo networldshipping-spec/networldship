@@ -327,15 +327,46 @@ function displayTrackingResults(data) {
 }
 
 // Contact Form Handler
-function handleContactSubmit(e) {
+async function handleContactSubmit(e) {
     e.preventDefault();
     showLoading(true);
     
-    setTimeout(() => {
+    const formData = new FormData(contactForm);
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const trackingNumber = formData.get('tracking_number');
+    const message = formData.get('message');
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/contact-message`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                sender_name: name,
+                sender_email: email,
+                tracking_number: trackingNumber || null,
+                message: message,
+                subject: trackingNumber ? `Contact Form: ${trackingNumber}` : 'General Inquiry from Website'
+            })
+        });
+        
+        const result = await response.json();
+        
         showLoading(false);
-        showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
-        contactForm.reset();
-    }, 1500);
+        
+        if (result.success) {
+            showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+            contactForm.reset();
+        } else {
+            showToast('Failed to send message. Please try again or email us directly.', 'error');
+        }
+    } catch (error) {
+        console.error('Error sending contact message:', error);
+        showLoading(false);
+        showToast('Failed to send message. Please email us at support@networldship.com', 'error');
+    }
 }
 
 // Animate Statistics

@@ -665,6 +665,48 @@ app.get('/api/notifications/shipment/:shipmentId', async (req, res) => {
     }
 });
 
+// Contact form submission from homepage
+app.post('/api/contact-message', async (req, res) => {
+    try {
+        const { sender_name, sender_email, tracking_number, message, subject } = req.body;
+        
+        let shipmentId = null;
+        
+        // If tracking number provided, try to find the shipment
+        if (tracking_number) {
+            const shipmentResult = await pool.query(
+                'SELECT id FROM shipments WHERE tracking_number = $1',
+                [tracking_number]
+            );
+            
+            if (shipmentResult.rows.length > 0) {
+                shipmentId = shipmentResult.rows[0].id;
+            }
+        }
+        
+        // Insert message into conversations table
+        await pool.query(
+            `INSERT INTO conversations 
+             (shipment_id, sender_name, sender_email, subject, message, sender_type, is_read)
+             VALUES ($1, $2, $3, $4, $5, 'customer', false)`,
+            [shipmentId, sender_name, sender_email, subject, message]
+        );
+        
+        console.log(`📧 Contact form message received from ${sender_name} (${sender_email})`);
+        
+        res.json({ 
+            success: true, 
+            message: 'Your message has been received. We will respond shortly!' 
+        });
+    } catch (error) {
+        console.error('Error saving contact message:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to save message. Please try again.' 
+        });
+    }
+});
+
 // Conversation/Inbox endpoints (Protected)
 app.get('/api/conversations', requireAuth, async (req, res) => {
     try {
