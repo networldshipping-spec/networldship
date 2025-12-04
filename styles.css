@@ -1655,7 +1655,18 @@ body {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
+    .contact-form {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+        max-width: 100%;
+        width: 100%;
+    }
+
     /* Toast */
     .toast {
         left: 1rem;
@@ -1704,10 +1715,19 @@ body {
 @media (max-width: 480px) {
     .container {
         padding: 0 0.75rem;
+        max-width: 100%;
+        overflow-x: hidden;
     }
     
     .hero {
         padding: 80px 0 40px;
+    }
+
+    .contact-form input,
+    .contact-form textarea,
+    .search-input,
+    .form-input {
+        font-size: 16px; /* Prevents zoom on iOS */
     }
     
     .hero-title {

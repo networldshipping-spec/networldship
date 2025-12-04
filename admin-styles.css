@@ -28,6 +28,13 @@ body {
     color: var(--text-primary);
     display: flex;
     min-height: 100vh;
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+html {
+    overflow-x: hidden;
+    max-width: 100vw;
 }
 
 /* Sidebar */
@@ -1385,6 +1392,34 @@ body {
     
     .chart-section {
         padding: 1rem;
+    }
+
+    /* Contact section mobile fixes */
+    .email-preview,
+    .email-compose {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .email-content,
+    .compose-form {
+        padding: 1rem;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    .compose-form input,
+    .compose-form textarea,
+    .compose-form select {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .content-section {
+        padding: 1rem;
+        overflow-x: hidden;
+        max-width: 100%;
     }
 }
 
