@@ -7,13 +7,11 @@
     <link rel="stylesheet" href="admin-styles.css">
     <style>
         .inbox-container {
-            max-width: 1400px;
-            margin: 40px auto;
-            padding: 0 20px;
             display: grid;
             grid-template-columns: 350px 1fr;
             gap: 20px;
-            height: calc(100vh - 160px);
+            height: calc(100vh - 240px);
+            margin-top: 20px;
         }
 
         .conversations-list {
@@ -378,7 +376,7 @@
         }
 
         .inbox-header {
-            padding: 20px;
+            padding: 16px 20px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -386,12 +384,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .inbox-header h1 {
-            margin: 0;
-            font-size: 24px;
-            color: #1f2937;
         }
 
         .inbox-controls {
@@ -585,13 +577,85 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Net World Ship</span>
+            </div>
+            <p class="admin-label">Admin Panel</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="admin.html#dashboard" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="admin.html#shipments" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span>Shipments</span>
+            </a>
+            <a href="admin.html#tracking" class="nav-item">
+                <i class="fas fa-route"></i>
+                <span>Tracking Events</span>
+            </a>
+            <a href="admin.html#create" class="nav-item">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Shipment</span>
+            </a>
+            <a href="admin.html#receipts" class="nav-item">
+                <i class="fas fa-receipt"></i>
+                <span>Receipts</span>
+            </a>
+            <a href="admin.html#contact" class="nav-item">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+            <a href="inbox.html" class="nav-item active">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <button onclick="handleLogout()" class="btn-logout" style="width: 100%; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+            <a href="index.html" class="btn-back" style="margin-top: 10px;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Website</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1>📧 Customer Inbox</h1>
+            <div class="user-menu">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="usernameDisplay">Admin</span>
+                </div>
+            </div>
+        </header>
+
         <div class="inbox-header">
             <div>
-                <h1>📧 Customer Inbox</h1>
-                <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 14px;">
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">
                     Manage all customer conversations and inquiries
                 </p>
             </div>
@@ -608,9 +672,6 @@
                 <button onclick="refreshConversations()" class="filter-badge" title="Refresh">
                     <i class="fas fa-sync-alt"></i>
                 </button>
-                <a href="admin.html" class="filter-badge" title="Back to Admin">
-                    <i class="fas fa-arrow-left"></i> Admin
-                </a>
             </div>
         </div>
 
@@ -632,11 +693,32 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
         let conversations = [];
         let currentConversation = null;
+
+        // Logout function
+        function handleLogout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'login.html';
+        }
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        mobileMenuToggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        });
+
+        sidebarOverlay?.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
 
         // Load conversations on page load
         async function loadConversations() {
