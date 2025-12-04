@@ -1420,6 +1420,15 @@ support@networldship.com
             break;
             
         case 'arrival':
+            // Calculate payment amount
+            const shippingCost = parseFloat(currentShipmentForContact.shipping_cost || 150.00);
+            const insuranceFee = parseFloat(currentShipmentForContact.insurance_fee || 25.00);
+            const customsFee = parseFloat(currentShipmentForContact.customs_fee || 50.00);
+            const handlingFee = parseFloat(currentShipmentForContact.handling_fee || 15.00);
+            const subtotal = shippingCost + insuranceFee + customsFee + handlingFee;
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+            
             message = `Dear Customer,
 
 🎉 GREAT NEWS! Your shipment has arrived at our facility!
@@ -1432,6 +1441,9 @@ Status: ARRIVED - AWAITING PAYMENT
 
 ⚠️ IMPORTANT: Payment Required for Release
 Your package is ready for final delivery. Please review the attached billing invoice and complete payment within 72 hours to avoid storage fees.
+
+💰 PAYMENT AMOUNT REQUIRED: $${total.toFixed(2)} USD
+(Shipping: $${shippingCost.toFixed(2)} + Insurance: $${insuranceFee.toFixed(2)} + Customs: $${customsFee.toFixed(2)} + Handling: $${handlingFee.toFixed(2)} + Tax: $${tax.toFixed(2)})
 
 💳 PAYMENT METHODS INCLUDED:
 • Bank Transfer / Cash Deposit
