@@ -1047,64 +1047,91 @@ app.post('/api/send-arrival-notification', requireAuth, async (req, res) => {
                 from: `Net World Ship <${EMAIL_CONFIG.user}>`,
                 to: recipient_email,
                 subject: `🚨 Payment Required - Shipment ${shipment.tracking_number} Has Arrived`,
+                text: `Dear Customer,
+
+🎉 GREAT NEWS! Your shipment has arrived at our facility!
+
+📋 SENDER: ${shipment.sender_name || 'N/A'} (${shipment.sender_email || 'N/A'})
+👤 RECEIVER: ${shipment.receiver_name || 'N/A'} (${shipment.receiver_email || 'N/A'})
+
+Tracking Number: ${shipment.tracking_number}
+Origin: ${shipment.origin}
+Destination: ${shipment.destination}
+Current Location: ${shipment.current_location || shipment.destination}
+Status: ARRIVED - AWAITING PAYMENT
+
+⚠️ IMPORTANT: Payment Required for Release
+Your package is ready for final delivery. Please review the attached billing invoice and complete payment within 72 hours to avoid storage fees.
+
+💰 PAYMENT AMOUNT REQUIRED: $${total.toFixed(2)} USD
+(Shipping: $${shippingCost.toFixed(2)} + Insurance: $${insuranceFee.toFixed(2)} + Customs: $${customsFee.toFixed(2)} + Handling: $${handlingFee.toFixed(2)} + Tax: $${tax.toFixed(2)})
+
+💳 PAYMENT METHODS INCLUDED:
+• Bank Transfer / Cash Deposit
+• Credit / Debit Card (Currently Unavailable)
+• PayPal / Zelle
+• Cryptocurrency (BTC/USDT)
+
+All payment details and procedures are included in the attached invoice.
+
+Track your shipment:
+${BASE_URL}/index.html?track=${shipment.tracking_number}
+
+For assistance, contact us immediately:
+📧 support@networldship.com
+📞 +1 (800) 999-0000
+
+📄 BILLING INVOICE ATTACHED
+
+Best regards,
+Net World Ship Team`,
                 html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
                         <div style="background: #3b82f6; color: white; padding: 20px; text-align: center;">
                             <h2 style="margin: 0;">📦 Shipment Arrival Notification</h2>
                         </div>
                         <div style="padding: 30px; background: #ffffff; border: 1px solid #e5e7eb;">
-                            <p style="margin: 0 0 10px 0; font-size: 16px;">Dear ${recipient_name},</p>
-                            <p style="margin: 0 0 20px 0; line-height: 1.6; color: #4b5563;">
-                                Great news! Your shipment <strong>${shipment.tracking_number}</strong> has arrived at our facility in <strong>${shipment.current_location || shipment.destination}</strong> and is ready for final delivery.
-                            </p>
-                            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
-                                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
-                                    <strong>⚠️ Action Required:</strong> Please review the attached billing invoice and complete payment to release your shipment for delivery.
-                                </p>
-                            </div>
-                            <div style="margin: 20px 0; padding: 15px; background: #f9fafb; border-radius: 8px;">
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280;"><strong>Shipment Details:</strong></p>
-                                <p style="margin: 5px 0; font-size: 14px;"><strong>Tracking:</strong> ${shipment.tracking_number}</p>
-                                <p style="margin: 5px 0; font-size: 14px;"><strong>Origin:</strong> ${shipment.origin}</p>
-                                <p style="margin: 5px 0; font-size: 14px;"><strong>Destination:</strong> ${shipment.destination}</p>
-                                <p style="margin: 5px 0; font-size: 14px;"><strong>Status:</strong> <span style="color: #f59e0b; font-weight: 600;">ARRIVED - AWAITING PAYMENT</span></p>
-                            </div>
+                            <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; white-space: pre-line;">Dear Customer,
 
-                            <div style="margin: 20px 0; padding: 15px; background: #eff6ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #1f2937; font-weight: 600;">📋 Sender Information:</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Name:</strong> ${shipment.sender_name || 'N/A'}</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Email:</strong> ${shipment.sender_email || 'N/A'}</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Phone:</strong> ${shipment.sender_phone || 'N/A'}</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Location:</strong> ${shipment.sender_city || ''}, ${shipment.sender_country || ''}</p>
-                            </div>
+🎉 GREAT NEWS! Your shipment has arrived at our facility!
 
-                            <div style="margin: 20px 0; padding: 15px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #1f2937; font-weight: 600;">👤 Receiver Information:</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Name:</strong> ${shipment.receiver_name || 'N/A'}</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Email:</strong> ${shipment.receiver_email || 'N/A'}</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Phone:</strong> ${shipment.receiver_phone || 'N/A'}</p>
-                                <p style="margin: 5px 0; font-size: 13px; color: #4b5563;"><strong>Location:</strong> ${shipment.receiver_city || ''}, ${shipment.receiver_country || ''}</p>
-                            </div>
+<strong>📋 SENDER:</strong> ${shipment.sender_name || 'N/A'} (${shipment.sender_email || 'N/A'})
+<strong>👤 RECEIVER:</strong> ${shipment.receiver_name || 'N/A'} (${shipment.receiver_email || 'N/A'})
 
-                            <div style="margin: 20px 0; padding: 20px; background: #fef2f2; border-radius: 8px; border: 2px solid #ef4444;">
-                                <p style="margin: 0 0 8px 0; font-size: 16px; color: #991b1b; font-weight: 600; text-align: center;">💰 PAYMENT AMOUNT REQUIRED</p>
-                                <p style="margin: 0; font-size: 28px; color: #dc2626; font-weight: 700; text-align: center;">$${total.toFixed(2)} USD</p>
-                                <p style="margin: 10px 0 0 0; font-size: 12px; color: #991b1b; text-align: center;">Due within 72 hours to avoid storage fees</p>
-                            </div>
-                            <p style="margin: 20px 0 10px 0; font-size: 14px; color: #4b5563;">
-                                Please find the detailed billing invoice attached to this email. Multiple payment methods are available for your convenience.
-                            </p>
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${BASE_URL}/index.html?track=${shipment.tracking_number}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
-                                    Track Shipment Online
-                                </a>
-                            </div>
-                            <p style="margin: 20px 0 0 0; font-size: 13px; color: #6b7280; line-height: 1.6;">
-                                If you have any questions or need assistance with payment, please don't hesitate to contact us at <strong>support@networldship.com</strong> or call <strong>+1 (800) 999-0000</strong>.
-                            </p>
+<strong>Tracking Number:</strong> ${shipment.tracking_number}
+<strong>Origin:</strong> ${shipment.origin}
+<strong>Destination:</strong> ${shipment.destination}
+<strong>Current Location:</strong> ${shipment.current_location || shipment.destination}
+<strong>Status:</strong> ARRIVED - AWAITING PAYMENT
+
+⚠️ <strong>IMPORTANT: Payment Required for Release</strong>
+Your package is ready for final delivery. Please review the attached billing invoice and complete payment within 72 hours to avoid storage fees.
+
+💰 <strong>PAYMENT AMOUNT REQUIRED: $${total.toFixed(2)} USD</strong>
+(Shipping: $${shippingCost.toFixed(2)} + Insurance: $${insuranceFee.toFixed(2)} + Customs: $${customsFee.toFixed(2)} + Handling: $${handlingFee.toFixed(2)} + Tax: $${tax.toFixed(2)})
+
+💳 <strong>PAYMENT METHODS INCLUDED:</strong>
+• Bank Transfer / Cash Deposit
+• Credit / Debit Card (Currently Unavailable)
+• PayPal / Zelle
+• Cryptocurrency (BTC/USDT)
+
+All payment details and procedures are included in the attached invoice.
+
+Track your shipment:
+<a href="${BASE_URL}/index.html?track=${shipment.tracking_number}" style="color: #3b82f6;">${BASE_URL}/index.html?track=${shipment.tracking_number}</a>
+
+For assistance, contact us immediately:
+📧 support@networldship.com
+📞 +1 (800) 999-0000
+
+📄 BILLING INVOICE ATTACHED
+
+Best regards,
+Net World Ship Team</p>
                         </div>
-                        <div style="text-align: center; padding: 20px; font-size: 12px; color: #9ca3af;">
-                            Net World Ship Team<br>
+                        <div style="text-align: center; padding: 20px; font-size: 12px; color: #9ca3af; background: #f9fafb;">
+                            Net World Ship<br>
                             12 Harbor Boulevard, Long Beach, CA 90802<br>
                             support@networldship.com | +1 (800) 999-0000
                         </div>
