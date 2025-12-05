@@ -1176,7 +1176,7 @@ Net World Ship Team`,
 <strong>Status:</strong> ARRIVED - AWAITING PAYMENT
 
 ⚠️ <strong>IMPORTANT: Payment Required for Release</strong>
-Your package is ready for final delivery. Please review the attached billing invoice and complete payment within 72 hours to avoid storage fees.
+Your package is ready for final delivery. Please review the billing details below and complete payment within 72 hours to avoid storage fees.
 
 💰 <strong>PAYMENT AMOUNT REQUIRED: $${total.toFixed(2)} USD</strong>
 (Shipping: $${shippingCost.toFixed(2)} + Insurance: $${insuranceFee.toFixed(2)} + Customs: $${customsFee.toFixed(2)} + Handling: $${handlingFee.toFixed(2)} + Tax: $${tax.toFixed(2)})
@@ -1187,16 +1187,12 @@ Your package is ready for final delivery. Please review the attached billing inv
 • PayPal / Zelle
 • Cryptocurrency (BTC/USDT)
 
-All payment details and procedures are included in the attached invoice.
-
 Track your shipment:
 <a href="${BASE_URL}/index.html?track=${shipment.tracking_number}" style="color: #3b82f6;">${BASE_URL}/index.html?track=${shipment.tracking_number}</a>
 
 For assistance, contact us immediately:
 📧 support@networldship.com
 📞 +1 (800) 999-0000
-
-📄 BILLING INVOICE ATTACHED
 
 Best regards,
 Net World Ship Team</p>
@@ -1207,12 +1203,7 @@ Net World Ship Team</p>
                             support@networldship.com | +1 (800) 999-0000
                         </div>
                     </div>
-                `,
-                attachments: [{
-                    filename: `Invoice-${shipment.tracking_number}.html`,
-                    content: invoiceHTML,
-                    contentType: 'text/html'
-                }]
+                `
             };
 
             await emailTransporter.sendMail(mailOptions);
@@ -1221,7 +1212,7 @@ Net World Ship Team</p>
             await pool.query(
                 `INSERT INTO notifications (shipment_id, recipient_email, recipient_type, subject, message, status)
                  VALUES ($1, $2, $3, $4, $5, 'sent')`,
-                [shipment_id, recipient_email, recipient_type, mailOptions.subject, 'Arrival notification with billing invoice']
+                [shipment_id, recipient_email, recipient_type, mailOptions.subject, 'Arrival notification']
             );
 
             res.json({ success: true, message: 'Arrival notification with invoice sent successfully' });

@@ -1451,7 +1451,7 @@ Your package is ready for final delivery. Please review the attached billing inv
 • PayPal / Zelle
 • Cryptocurrency (BTC/USDT)
 
-All payment details and procedures are included in the attached invoice.
+All payment details and procedures are provided below.
 
 Track your shipment:
 ${trackingURL}
@@ -1459,8 +1459,6 @@ ${trackingURL}
 For assistance, contact us immediately:
 📧 support@networldship.com
 📞 +1 (800) 999-0000
-
-📄 BILLING INVOICE ATTACHED
 
 Best regards,
 Net World Ship Team`;
@@ -1507,21 +1505,24 @@ async function handleSendEmail(e) {
     try {
         let response;
         
-        // Use special endpoint for arrival notification with invoice
+        // For arrival template: send update message WITHOUT attaching the invoice file
         if (template === 'arrival') {
-            const recipientName = recipientType === 'sender' ? 
-                currentShipmentForContact.sender_name : 
-                currentShipmentForContact.receiver_name;
-            
-            response = await fetch(`${API_BASE_URL}/send-arrival-notification`, {
+            const emailData = {
+                shipment_id: formData.get('shipment_id'),
+                recipient_type: recipientType,
+                recipient_email: recipientEmail,
+                subject: formData.get('subject') || `Shipment ${currentShipmentForContact.tracking_number} - Arrival Notification`,
+                message: formData.get('message'),
+                tracking_number: currentShipmentForContact.tracking_number,
+                receipt_html: null,
+                shipment_data: currentShipmentForContact,
+                include_receipt: false
+            };
+
+            response = await fetch(`${API_BASE_URL}/notifications/send`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    shipment_id: formData.get('shipment_id'),
-                    recipient_type: recipientType,
-                    recipient_email: recipientEmail,
-                    recipient_name: recipientName
-                })
+                body: JSON.stringify(emailData)
             });
         } else {
             // Regular notification with optional receipt
