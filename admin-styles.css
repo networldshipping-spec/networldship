@@ -29,16 +29,12 @@ body {
     display: flex;
     min-height: 100vh;
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-width: 100vw;
+    overflow: auto;
 }
 
 html {
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-width: 100vw;
+    overflow: auto;
 }
 
 /* Sidebar */
@@ -140,6 +136,7 @@ html {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    overflow: auto;
 }
 
 .top-bar {
@@ -1583,6 +1580,8 @@ html {
     .main-content,
     .header,
     .footer,
+           overflow-x: auto;
+           -webkit-overflow-scrolling: touch;
     .toast,
     .loading-spinner,
     .modal-header {
