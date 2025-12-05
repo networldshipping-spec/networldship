@@ -531,28 +531,92 @@ function setupLanguageSelector() {
         checkCount++;
     }, 500);
     
+    // Helper to restore dropdown to its original location (if moved)
+    function restoreLanguageDropdown() {
+        if (languageDropdown.__originalParent) {
+            try {
+                if (languageDropdown.__originalNext) {
+                    languageDropdown.__originalParent.insertBefore(languageDropdown, languageDropdown.__originalNext);
+                } else {
+                    languageDropdown.__originalParent.appendChild(languageDropdown);
+                }
+            } catch (err) {
+                // fallback: append to parent
+                languageDropdown.__originalParent.appendChild(languageDropdown);
+            }
+            languageDropdown.classList.remove('mobile-appended');
+            // clear inline styles applied for mobile
+            languageDropdown.style.position = '';
+            languageDropdown.style.top = '';
+            languageDropdown.style.right = '';
+            languageDropdown.style.left = '';
+            languageDropdown.style.minWidth = '';
+            languageDropdown.style.zIndex = '';
+            languageDropdown.style.transform = '';
+            languageDropdown.style.opacity = '';
+            languageDropdown.style.visibility = '';
+            delete languageDropdown.__originalParent;
+            delete languageDropdown.__originalNext;
+        }
+        languageDropdown.classList.remove('active');
+        languageBtn.classList.remove('active');
+    }
+
     // Toggle dropdown
     languageBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        languageDropdown.classList.toggle('active');
-        languageBtn.classList.toggle('active');
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            // If not already moved, move it to body and position fixed so it sits above content
+            if (!languageDropdown.classList.contains('mobile-appended')) {
+                languageDropdown.__originalParent = languageDropdown.parentNode;
+                languageDropdown.__originalNext = languageDropdown.nextSibling;
+                document.body.appendChild(languageDropdown);
+                languageDropdown.classList.add('mobile-appended');
+
+                const header = document.querySelector('.header');
+                const headerBottom = header ? (header.getBoundingClientRect().bottom + window.scrollY) : (56 + window.scrollY);
+                languageDropdown.style.position = 'fixed';
+                languageDropdown.style.top = (headerBottom + 8) + 'px';
+                languageDropdown.style.right = '0.75rem';
+                languageDropdown.style.left = '0.75rem';
+                languageDropdown.style.minWidth = 'auto';
+                languageDropdown.style.zIndex = '20000';
+                languageDropdown.style.transform = 'translateY(0)';
+                languageDropdown.style.opacity = '1';
+                languageDropdown.style.visibility = 'visible';
+                languageDropdown.classList.add('active');
+                languageBtn.classList.add('active');
+            } else {
+                // already appended -> restore
+                restoreLanguageDropdown();
+            }
+        } else {
+            languageDropdown.classList.toggle('active');
+            languageBtn.classList.toggle('active');
+        }
     });
-    
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
-            languageDropdown.classList.remove('active');
-            languageBtn.classList.remove('active');
+            // restore if mobile-appended
+            if (languageDropdown.classList.contains('mobile-appended')) {
+                restoreLanguageDropdown();
+            } else {
+                languageDropdown.classList.remove('active');
+                languageBtn.classList.remove('active');
+            }
         }
     });
-    
+
     // Language selection
     document.querySelectorAll('.language-option').forEach(option => {
         option.addEventListener('click', (e) => {
             e.preventDefault();
             const lang = option.getAttribute('data-lang');
             changeLanguage(lang);
-            
+
             // Update display
             const langCodes = {
                 'en': 'EN',
@@ -566,10 +630,14 @@ function setupLanguageSelector() {
             if (currentLangSpan) {
                 currentLangSpan.textContent = langCodes[lang] || 'EN';
             }
-            
+
             // Close dropdown
-            languageDropdown.classList.remove('active');
-            languageBtn.classList.remove('active');
+            if (languageDropdown.classList.contains('mobile-appended')) {
+                restoreLanguageDropdown();
+            } else {
+                languageDropdown.classList.remove('active');
+                languageBtn.classList.remove('active');
+            }
         });
     });
 }
