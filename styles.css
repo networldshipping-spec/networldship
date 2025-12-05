@@ -182,7 +182,7 @@ img {
     visibility: hidden;
     transform: translateY(-10px);
     transition: var(--transition);
-    z-index: 1000;
+    z-index: 10000; /* raised so dropdown sits above hero/overlay content */
     overflow: hidden;
 }
 
@@ -190,6 +190,17 @@ img {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+    z-index: 10001;
+}
+
+/* Mobile: make sure dropdown appears above mobile nav/overlays */
+@media (max-width: 768px) {
+    .language-dropdown {
+        position: fixed;
+        right: 0.75rem;
+        top: 4.5rem; /* place below the fixed header */
+        z-index: 12000;
+    }
 }
 
 .language-option {
