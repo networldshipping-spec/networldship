@@ -2023,3 +2023,44 @@ html {
     line-height: 1.5;
     margin: 0;
 }
+
+/* Mobile: make Contact panels vertically scrollable and reachable */
+@media (max-width: 768px) {
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .contact-info-panel,
+    .contact-form-panel {
+        padding: 1rem;
+    }
+
+    .contact-recipients {
+        grid-template-columns: 1fr;
+    }
+
+    /* Make the form panel scroll inside the viewport so admin can reach the bottom controls */
+    .contact-form-panel {
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        padding-bottom: 2.5rem;
+    }
+
+    /* Keep the primary send button visible by sticking it to the bottom of the form panel */
+    .contact-form-panel .btn-primary.btn-full {
+        position: sticky;
+        bottom: 0.75rem;
+        z-index: 20;
+        margin-top: 0.75rem;
+    }
+
+    /* Ensure notification history and tables remain usable */
+    .notifications-table-container {
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+}
