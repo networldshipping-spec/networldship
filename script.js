@@ -563,7 +563,9 @@ function setupLanguageSelector() {
                 'hi': 'हिं',
                 'el': 'ΕΛ'
             };
-            currentLangSpan.textContent = langCodes[lang] || 'EN';
+            if (currentLangSpan) {
+                currentLangSpan.textContent = langCodes[lang] || 'EN';
+            }
             
             // Close dropdown
             languageDropdown.classList.remove('active');
