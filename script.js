@@ -235,6 +235,10 @@ function displayTrackingResults(data) {
                     <i class="fas fa-box"></i>
                     <span>Package Image</span>
                 </button>
+                <button class="tab-btn" data-tab="invoice">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Shipment Invoice</span>
+                </button>
             </div>
             
             <!-- Tab Contents -->
@@ -315,6 +319,73 @@ function displayTrackingResults(data) {
                             <i class="fas fa-image"></i>
                             <p>No package image available</p>
                             <span>The sender did not upload a package image for this shipment</span>
+                        </div>
+                    `}
+                </div>
+            </div>
+            
+            <div class="tab-content" id="invoice-tab">
+                <div class="invoice-viewer">
+                    <div class="invoice-header">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <h3>Shipment Invoice / Receipt</h3>
+                    </div>
+                    ${shipment.invoice_path || shipment.receipt_path ? `
+                        <div class="invoice-container">
+                            <div class="invoice-preview">
+                                ${shipment.invoice_path ? `
+                                    <div class="invoice-document">
+                                        <div class="document-icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                        <div class="document-info">
+                                            <h4>Invoice Document</h4>
+                                            <p>${shipment.invoice_filename || 'invoice.pdf'}</p>
+                                        </div>
+                                        <a href="${shipment.invoice_path}" target="_blank" class="btn-download">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </div>
+                                ` : ''}
+                                ${shipment.receipt_path ? `
+                                    <div class="invoice-document">
+                                        <div class="document-icon">
+                                            <i class="fas fa-receipt"></i>
+                                        </div>
+                                        <div class="document-info">
+                                            <h4>Receipt Document</h4>
+                                            <p>${shipment.receipt_filename || 'receipt.pdf'}</p>
+                                        </div>
+                                        <a href="${shipment.receipt_path}" target="_blank" class="btn-download">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="invoice-details">
+                                <div class="invoice-detail-item">
+                                    <i class="fas fa-hashtag"></i>
+                                    <span>Tracking #: ${shipment.tracking_number}</span>
+                                </div>
+                                <div class="invoice-detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Date: ${formatDate(shipment.shipment_date)}</span>
+                                </div>
+                                <div class="invoice-detail-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>Sender: ${shipment.sender_name || 'N/A'}</span>
+                                </div>
+                                <div class="invoice-detail-item">
+                                    <i class="fas fa-user-tag"></i>
+                                    <span>Receiver: ${shipment.receiver_name || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="no-invoice">
+                            <i class="fas fa-file-invoice"></i>
+                            <p>No invoice or receipt available</p>
+                            <span>Invoice and receipt documents will be uploaded once available</span>
                         </div>
                     `}
                 </div>

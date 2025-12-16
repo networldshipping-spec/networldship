@@ -1021,6 +1021,172 @@ body {
     font-size: 0.95rem;
 }
 
+/* Invoice Viewer Styles */
+.invoice-viewer {
+    padding: 2rem;
+}
+
+.invoice-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.invoice-header i {
+    font-size: 1.75rem;
+    color: var(--primary-color);
+}
+
+.invoice-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.invoice-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.invoice-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.invoice-document {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.invoice-document:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+    border-color: var(--primary-color);
+}
+
+.document-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.document-icon i {
+    font-size: 1.75rem;
+    color: white;
+}
+
+.document-info {
+    flex: 1;
+}
+
+.document-info h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.document-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.btn-download {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-download:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-download i {
+    font-size: 1rem;
+}
+
+.invoice-details {
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.invoice-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 10px;
+}
+
+.invoice-detail-item i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.invoice-detail-item span {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.no-invoice {
+    background: rgba(30, 41, 59, 0.3);
+    border: 2px dashed var(--border-color);
+    border-radius: 20px;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.no-invoice i {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-invoice p {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.no-invoice span {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
 /* Features Section */
 .features {
     padding: 6rem 0;
@@ -1721,6 +1887,40 @@ body {
     .form-actions button {
         width: 100%;
     }
+    
+    /* Invoice Viewer Mobile */
+    .invoice-viewer {
+        padding: 1rem;
+    }
+    
+    .invoice-header {
+        margin-bottom: 1.5rem;
+    }
+    
+    .invoice-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .invoice-document {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.25rem;
+    }
+    
+    .document-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .btn-download {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .invoice-details {
+        grid-template-columns: 1fr;
+        padding: 1.25rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -2002,6 +2202,55 @@ body {
     }
     
     .no-package-image span {
+        font-size: 0.85rem;
+    }
+    
+    /* Invoice Viewer Small Mobile */
+    .invoice-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .invoice-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .invoice-document {
+        padding: 1rem;
+    }
+    
+    .document-info h4 {
+        font-size: 1rem;
+    }
+    
+    .document-info p {
+        font-size: 0.85rem;
+    }
+    
+    .btn-download {
+        padding: 0.65rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .invoice-detail-item {
+        padding: 0.65rem;
+        font-size: 0.85rem;
+    }
+    
+    .no-invoice {
+        padding: 2rem 1rem;
+    }
+    
+    .no-invoice i {
+        font-size: 2.5rem;
+    }
+    
+    .no-invoice p {
+        font-size: 1.1rem;
+    }
+    
+    .no-invoice span {
         font-size: 0.85rem;
     }
     
