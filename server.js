@@ -342,9 +342,15 @@ app.post('/api/shipments', requireAuth, async (req, res) => {
         let createdAtParam = null;
         
         if (creation_date && creation_time) {
-            createdAtValue = '$26';
+            createdAtValue = '$30';
             createdAtParam = `${creation_date}T${creation_time}:00`;
         }
+        
+        // Auto-generate invoice and receipt paths (use localhost for development)
+        const invoicePath = `http://localhost:${PORT}/uploads/invoices/${tracking_number}-invoice.pdf`;
+        const invoiceFilename = `${tracking_number}-invoice.pdf`;
+        const receiptPath = `http://localhost:${PORT}/uploads/receipts/${tracking_number}-receipt.pdf`;
+        const receiptFilename = `${tracking_number}-receipt.pdf`;
         
         const result = await pool.query(
             `INSERT INTO shipments 
@@ -352,20 +358,23 @@ app.post('/api/shipments', requireAuth, async (req, res) => {
              sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
              receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
              package_weight, package_dimensions, package_description, shipping_cost,
-             package_image_path, package_image_filename, created_at) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, ${createdAtValue}) 
+             package_image_path, package_image_filename,
+             invoice_path, invoice_filename, receipt_path, receipt_filename, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, ${createdAtValue}) 
             RETURNING *`,
             createdAtParam 
                 ? [tracking_number, origin, destination, carrier, status, estimated_delivery, current_location,
                    sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
                    receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
                    package_weight, package_dimensions, package_description, shipping_cost,
-                   package_image_path, package_image_filename, createdAtParam]
+                   package_image_path, package_image_filename,
+                   invoicePath, invoiceFilename, receiptPath, receiptFilename, createdAtParam]
                 : [tracking_number, origin, destination, carrier, status, estimated_delivery, current_location,
                    sender_name, sender_email, sender_phone, sender_address, sender_city, sender_country,
                    receiver_name, receiver_email, receiver_phone, receiver_address, receiver_city, receiver_country,
                    package_weight, package_dimensions, package_description, shipping_cost,
-                   package_image_path, package_image_filename]
+                   package_image_path, package_image_filename,
+                   invoicePath, invoiceFilename, receiptPath, receiptFilename]
         );
         
         const newShipment = result.rows[0];
@@ -1228,6 +1237,274 @@ Net World Ship Team</p>
 // Serve index.html for the root route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Invoice/Receipt generation endpoints
+app.get('/uploads/invoices/:filename', async (req, res) => {
+    try {
+        const filename = req.params.filename;
+        const trackingNumber = filename.replace('-invoice.pdf', '');
+        
+        // Get shipment details
+        const result = await pool.query(
+            'SELECT * FROM shipments WHERE tracking_number = $1',
+            [trackingNumber]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).send('Invoice not found');
+        }
+        
+        const shipment = result.rows[0];
+        
+        // Generate HTML invoice
+        const invoiceHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - ${trackingNumber}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+        .invoice { max-width: 800px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { border-bottom: 3px solid #3b82f6; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: #1e293b; font-size: 28px; margin-bottom: 5px; }
+        .header .subtitle { color: #64748b; font-size: 14px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .info-section h3 { color: #3b82f6; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; }
+        .info-section p { color: #475569; line-height: 1.6; }
+        .info-section strong { color: #1e293b; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 30px 0; }
+        .details-table th { background: #f1f5f9; padding: 12px; text-align: left; color: #1e293b; font-weight: 600; }
+        .details-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #475569; }
+        .total { text-align: right; margin-top: 20px; padding-top: 20px; border-top: 2px solid #3b82f6; }
+        .total h2 { color: #1e293b; font-size: 24px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 12px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .status-delivered { background: #dcfce7; color: #166534; }
+        .status-in-transit { background: #dbeafe; color: #1e40af; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        @media print {
+            body { padding: 0; background: white; }
+            .invoice { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        <div class="header">
+            <h1>🚚 Net World Ship</h1>
+            <p class="subtitle">Global Shipping & Logistics</p>
+        </div>
+        
+        <h2 style="color: #1e293b; margin-bottom: 20px;">SHIPMENT INVOICE</h2>
+        
+        <div class="info-grid">
+            <div class="info-section">
+                <h3>Invoice Details</h3>
+                <p><strong>Invoice Number:</strong> INV-${trackingNumber}</p>
+                <p><strong>Tracking Number:</strong> ${trackingNumber}</p>
+                <p><strong>Date:</strong> ${new Date(shipment.created_at).toLocaleDateString()}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-${shipment.status}">${shipment.status.toUpperCase()}</span></p>
+            </div>
+            
+            <div class="info-section">
+                <h3>Sender Information</h3>
+                <p><strong>${shipment.sender_name || 'N/A'}</strong></p>
+                <p>${shipment.sender_address || ''}</p>
+                <p>${shipment.sender_city || ''}, ${shipment.sender_country || ''}</p>
+                <p>📧 ${shipment.sender_email || 'N/A'}</p>
+                <p>📱 ${shipment.sender_phone || 'N/A'}</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>Receiver Information</h3>
+                <p><strong>${shipment.receiver_name || 'N/A'}</strong></p>
+                <p>${shipment.receiver_address || ''}</p>
+                <p>${shipment.receiver_city || ''}, ${shipment.receiver_country || ''}</p>
+                <p>📧 ${shipment.receiver_email || 'N/A'}</p>
+                <p>📱 ${shipment.receiver_phone || 'N/A'}</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>Shipment Route</h3>
+                <p><strong>Origin:</strong> ${shipment.origin}</p>
+                <p><strong>Destination:</strong> ${shipment.destination}</p>
+                <p><strong>Carrier:</strong> ${shipment.carrier}</p>
+                <p><strong>Est. Delivery:</strong> ${shipment.estimated_delivery ? new Date(shipment.estimated_delivery).toLocaleDateString() : 'TBD'}</p>
+            </div>
+        </div>
+        
+        <table class="details-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Details</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Shipping Service</strong></td>
+                    <td>${shipment.carrier} - ${shipment.status.replace('-', ' ').toUpperCase()}</td>
+                    <td style="text-align: right;">$${shipment.shipping_cost || '0.00'}</td>
+                </tr>
+                <tr>
+                    <td><strong>Package Details</strong></td>
+                    <td>
+                        Weight: ${shipment.package_weight || 'N/A'}<br>
+                        Dimensions: ${shipment.package_dimensions || 'N/A'}<br>
+                        Description: ${shipment.package_description || 'N/A'}
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="total">
+            <h2>Total: $${shipment.shipping_cost || '0.00'}</h2>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Net World Ship</strong> | 12 Harbor Boulevard, Long Beach, CA 90802</p>
+            <p>📞 +1 (800) 999-0000 | 📱 WhatsApp: +1 (918) 229-4453 | 📧 support@networldship.com</p>
+            <p style="margin-top: 10px;">Thank you for choosing Net World Ship for your shipping needs!</p>
+        </div>
+    </div>
+</body>
+</html>`;
+        
+        res.setHeader('Content-Type', 'text/html');
+        res.send(invoiceHTML);
+        
+    } catch (error) {
+        console.error('Error generating invoice:', error);
+        res.status(500).send('Error generating invoice');
+    }
+});
+
+app.get('/uploads/receipts/:filename', async (req, res) => {
+    try {
+        const filename = req.params.filename;
+        const trackingNumber = filename.replace('-receipt.pdf', '');
+        
+        // Get shipment details
+        const result = await pool.query(
+            'SELECT * FROM shipments WHERE tracking_number = $1',
+            [trackingNumber]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).send('Receipt not found');
+        }
+        
+        const shipment = result.rows[0];
+        
+        // Generate HTML receipt
+        const receiptHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt - ${trackingNumber}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; padding: 40px; background: #f5f5f5; }
+        .receipt { max-width: 400px; margin: 0 auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .receipt-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 20px; margin-bottom: 20px; }
+        .receipt-header h1 { font-size: 24px; margin-bottom: 5px; }
+        .receipt-header p { font-size: 12px; }
+        .receipt-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
+        .receipt-line strong { font-weight: bold; }
+        .receipt-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #000; text-align: right; }
+        .receipt-total h2 { font-size: 20px; }
+        .receipt-footer { margin-top: 30px; padding-top: 20px; border-top: 2px dashed #000; text-align: center; font-size: 11px; }
+        .barcode { text-align: center; margin: 20px 0; font-size: 24px; letter-spacing: 2px; font-family: monospace; }
+        @media print {
+            body { padding: 0; background: white; }
+            .receipt { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="receipt-header">
+            <h1>NET WORLD SHIP</h1>
+            <p>PAYMENT RECEIPT</p>
+            <p style="margin-top: 10px;">Date: ${new Date(shipment.created_at).toLocaleString()}</p>
+        </div>
+        
+        <div class="barcode">||||| ${trackingNumber} |||||</div>
+        
+        <div class="receipt-line">
+            <span>Tracking Number:</span>
+            <strong>${trackingNumber}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>Receipt No:</span>
+            <strong>RCP-${trackingNumber}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>Service:</span>
+            <strong>${shipment.carrier}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>From:</span>
+            <strong>${shipment.origin}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>To:</span>
+            <strong>${shipment.destination}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>Sender:</span>
+            <strong>${shipment.sender_name || 'N/A'}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>Receiver:</span>
+            <strong>${shipment.receiver_name || 'N/A'}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>Weight:</span>
+            <strong>${shipment.package_weight || 'N/A'}</strong>
+        </div>
+        
+        <div class="receipt-line">
+            <span>Status:</span>
+            <strong>${shipment.status.toUpperCase()}</strong>
+        </div>
+        
+        <div class="receipt-total">
+            <h2>TOTAL TO BE PAID: $${shipment.shipping_cost || '0.00'}</h2>
+        </div>
+        
+        <div class="receipt-footer">
+            <p>12 Harbor Boulevard, Long Beach, CA 90802</p>
+            <p>Phone: +1 (800) 999-0000</p>
+            <p>WhatsApp: +1 (918) 229-4453</p>
+            <p>Email: support@networldship.com</p>
+            <p style="margin-top: 15px;">*** THANK YOU FOR YOUR BUSINESS ***</p>
+            <p>Keep this receipt for your records</p>
+        </div>
+    </div>
+</body>
+</html>`;
+        
+        res.setHeader('Content-Type', 'text/html');
+        res.send(receiptHTML);
+        
+    } catch (error) {
+        console.error('Error generating receipt:', error);
+        res.status(500).send('Error generating receipt');
+    }
 });
 
 // Start server

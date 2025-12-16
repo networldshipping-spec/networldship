@@ -158,7 +158,35 @@ function displayTrackingResults(data) {
         </div>
     ` : '';
     
-    const timelineHTML = updatesHTML + creationHTML;
+    // Add invoice/receipt as last timeline item
+    const invoiceHTML = (shipment.invoice_path || shipment.receipt_path) ? `
+        <div class="timeline-item timeline-invoice">
+            <div class="timeline-marker" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">${formatDateTime(shipment.shipment_date)}</div>
+                <div class="timeline-status" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">Shipment Invoice</div>
+                <div class="timeline-location">Documents Available</div>
+                <div class="timeline-invoice-docs" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                    ${shipment.invoice_path ? `
+                        <a href="${shipment.invoice_path}" target="_blank" class="invoice-timeline-link">
+                            <i class="fas fa-file-invoice"></i>
+                            <span>Download Invoice</span>
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    ` : ''}
+                    ${shipment.receipt_path ? `
+                        <a href="${shipment.receipt_path}" target="_blank" class="invoice-timeline-link">
+                            <i class="fas fa-receipt"></i>
+                            <span>Download Receipt</span>
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    ` : '';
+    
+    const timelineHTML = updatesHTML + creationHTML + invoiceHTML;
     
     trackingResults.innerHTML = `
         <div class="tracking-card">

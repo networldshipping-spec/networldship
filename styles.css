@@ -683,6 +683,45 @@ body {
     font-size: 0.875rem;
 }
 
+/* Timeline Invoice Links */
+.invoice-timeline-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.invoice-timeline-link:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.invoice-timeline-link i:first-child {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.invoice-timeline-link span {
+    flex: 1;
+    font-weight: 500;
+}
+
+.invoice-timeline-link i:last-child {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.timeline-invoice .timeline-marker {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
 /* Tracking Tabs */
 .tracking-tabs {
     display: flex;
