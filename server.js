@@ -1368,7 +1368,7 @@ app.get('/uploads/invoices/:filename', async (req, res) => {
         
         <div class="footer">
             <p><strong>Net World Ship</strong> | 12 Harbor Boulevard, Long Beach, CA 90802</p>
-            <p>📞 +1 (800) 999-0000 | 📱 WhatsApp: +1 (918) 229-4453 | 📧 support@networldship.com</p>
+            <p>📞 +1 (800) 999-0000 | 📱 WhatsApp: +1 (656) 236-3199 | 📧 support@networldship.com</p>
             <p style="margin-top: 10px;">Thank you for choosing Net World Ship for your shipping needs!</p>
         </div>
     </div>
@@ -1489,7 +1489,7 @@ app.get('/uploads/receipts/:filename', async (req, res) => {
         <div class="receipt-footer">
             <p>12 Harbor Boulevard, Long Beach, CA 90802</p>
             <p>Phone: +1 (800) 999-0000</p>
-            <p>WhatsApp: +1 (918) 229-4453</p>
+            <p>WhatsApp: +1 (656) 236-3199</p>
             <p>Email: support@networldship.com</p>
             <p style="margin-top: 15px;">*** THANK YOU FOR YOUR BUSINESS ***</p>
             <p>Keep this receipt for your records</p>
