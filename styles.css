@@ -1439,6 +1439,15 @@ body {
     transform: translateY(-3px);
 }
 
+/* Center social links on mobile */
+@media (max-width: 600px) {
+    .social-links {
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+}
+
 .newsletter-form {
     display: flex;
     gap: 0.5rem;
