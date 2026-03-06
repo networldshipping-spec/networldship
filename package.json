@@ -14,7 +14,7 @@
     "logistics",
     "postgresql"
   ],
-  "author": "",
+  "author": "networldshipping-spec",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -27,6 +27,10 @@
     "node-imap": "^0.9.6",
     "nodemailer": "^7.0.11",
     "pg": "^8.11.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/networldshipping-spec/networldshipping.git"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

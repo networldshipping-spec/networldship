@@ -1,5 +1,7 @@
 # NET WORLD SHIPPING - Modern Shipment Tracking System
 
+A private repository: `networldshipping-spec/networldshipping` (intended to be private for the shipping company)
+
 A full-stack shipment tracking application with PostgreSQL database integration, admin panel, receipt generation, and email notification system for NET WORLD SHIPPING company.
 
 ## 🚀 Features
