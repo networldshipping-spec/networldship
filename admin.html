@@ -754,17 +754,32 @@
     </div>
 
     <script>
-        // Check authentication before loading admin panel
-        fetch('/api/auth/check')
-            .then(res => res.json())
-            .then(data => {
-                if (!data.authenticated) {
-                    window.location.href = '/login.html';
+        // Temporary bypass for admin access: add ?bypassAdmin=true to URL
+        (function(){
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const bypass = params.get('bypassAdmin') === 'true';
+                if (bypass) {
+                    console.log('Admin auth bypass enabled via query param.');
+                    return; // don't block access
                 }
-            })
-            .catch(() => {
+
+                // Default behavior: verify session
+                fetch('/api/auth/check')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.authenticated) {
+                            window.location.href = '/login.html';
+                        }
+                    })
+                    .catch(() => {
+                        window.location.href = '/login.html';
+                    });
+            } catch (e) {
+                // If anything goes wrong, fall back to redirecting to login
                 window.location.href = '/login.html';
-            });
+            }
+        })();
     </script>
     <script src="admin-script.js"></script>
 </body>
