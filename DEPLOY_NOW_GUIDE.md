@@ -216,6 +216,116 @@ Render automatically provides free SSL certificate for your custom domain.
 
 ---
 
+## Render Postgres (new credentials)
+
+Connections
+
+Hostname
+An internal hostname used by your Render services.
+dpg-d6latiua2pns73bu1bk0-a
+
+Port
+5432
+
+Database
+networldship
+
+Username
+networld
+
+Password
+Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0
+
+Internal Database URL
+postgresql://networld:Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0@dpg-d6latiua2pns73bu1bk0-a/networldship
+
+
+External Database URL
+postgresql://networld:Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0@dpg-d6latiua2pns73bu1bk0-a.oregon-postgres.render.com/networldship
+
+How to use these values
+
+- On Render (recommended): Set a single environment variable for your web service named `DATABASE_URL` and paste the *Internal Database URL* as its value. Render services in the same region can connect using the internal hostname.
+- Locally or from outside Render: use the *External Database URL* in your local `.env` as `DATABASE_URL` so your local app can connect.
+- Alternatively (if your app expects separate vars), you can set `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` in Render's Environment settings using the values above.
+- Do NOT commit these credentials into source control. Keep them in Render environment variables or a local `.env` excluded by `.gitignore`.
+
+Notes
+
+- If you change to a single `DATABASE_URL` approach, update `server.js` (or your DB initialization code) to prefer `process.env.DATABASE_URL` before falling back to individual `DB_*` variables. This keeps local and Render environments consistent.
+- Internal connections (the first URL) are preferred for services running inside Render for lower latency and no external routing.
+- External URL includes the public render domain and should be used only for non-Render connections.
+
+**Setting `DATABASE_URL` on Render and locally**
+
+- On Render (web service):
+	1. Open the Render dashboard and select your Web Service for `networldship`.
+ 2. Go to **Settings → Environment** (or the Environment tab in the service).
+ 3. Click **Add Environment Variable**.
+ 4. Set **Key** = `DATABASE_URL` and **Value** = the *Internal Database URL* (for example: `postgresql://networld:Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0@dpg-d6latiua2pns73bu1bk0-a/networldship`).
+ 5. Save the variable; Render will redeploy your service and it will connect using the internal endpoint.
+
+- Locally (development machine):
+	1. Create a `.env` file in the project root (make sure `.env` is in `.gitignore`).
+ 2. Add either the single `DATABASE_URL` line or the individual DB variables as fallbacks. Example minimal `.env`:
+
+```
+DATABASE_URL=postgresql://networld:Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0@dpg-d6latiua2pns73bu1bk0-a/networldship
+PORT=3000
+BASE_URL=http://localhost:3000
+```
+
+Or if you prefer separate values:
+
+```
+DB_USER=networld
+DB_HOST=dpg-d6latiua2pns73bu1bk0-a
+DB_NAME=networldship
+DB_PASSWORD=Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0
+DB_PORT=5432
+```
+
+3. Start the server locally (`node server.js` or `npm start`) and it will read `process.env.DATABASE_URL` first.
+4. Do NOT commit your `.env` to source control.
+
+**Connecting with pgAdmin (GUI)**
+
+- Use the *external* hostname (the internal hostname only resolves from inside Render):
+	- Host: dpg-d6latiua2pns73bu1bk0-a.oregon-postgres.render.com
+	- Port: 5432
+	- Database: networldship
+	- Username: networld
+	- Password: Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0
+	- SSL mode: Require
+
+pgAdmin steps:
+- Open pgAdmin, right-click **Servers** → **Create** → **Server...**
+	- **General** tab: set **Name** to `networldship` (friendly name)
+	- **Connection** tab:
+		- Host name/address: `dpg-d6latiua2pns73bu1bk0-a.oregon-postgres.render.com`
+		- Port: `5432`
+		- Maintenance DB: `networldship` (or `postgres`)
+		- Username: `networld`
+		- Password: the Render DB password
+	- **SSL** tab:
+		- SSL mode: `Require`
+		- Leave client cert/key/CA blank initially; set them only if Render provides them
+	- Click **Save** to connect
+
+Quick test from terminal (if `psql` is installed):
+
+```bash
+psql "postgresql://networld:Quqo3mLHlgWpuVSpFihn2vgT8Uyx0ZT0@dpg-d6latiua2pns73bu1bk0-a.oregon-postgres.render.com/networldship"
+```
+
+Notes:
+- If you try to use the internal hostname from outside Render it will not resolve — always use the external domain in pgAdmin or local tools.
+- If you see SSL errors, try `Prefer` then `Require` in pgAdmin's SSL mode; check the exact error message and Render's DB settings.
+- Keep credentials secure; use a password manager and do not commit them to source control.
+
+
+---
+
 ## Success! 🎉
 
 Your NET WORLD SHIPPING app is now live at:

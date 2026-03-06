@@ -112,21 +112,30 @@ const attachmentUpload = multer({
 });
 
 // PostgreSQL connection with improved timeout and retry settings
-const pool = new Pool({
-    user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_NAME || 'networld',
-    password: process.env.DB_PASSWORD,
-    port: parseInt(process.env.DB_PORT) || 5432,
-    ssl: process.env.DB_HOST !== 'localhost' ? {
-        rejectUnauthorized: false
-    } : false,
-    max: 20, // Maximum number of clients in the pool
-    idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-    connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection cannot be established
-    keepAlive: true,
-    keepAliveInitialDelayMillis: 10000
-});
+// Prefer a single DATABASE_URL (connection string) if provided, otherwise use individual DB_* vars
+const poolConfig = {};
+
+if (process.env.DATABASE_URL) {
+    poolConfig.connectionString = process.env.DATABASE_URL;
+    // When using Render's managed Postgres, require SSL but allow self-signed certs
+    poolConfig.ssl = { rejectUnauthorized: false };
+} else {
+    poolConfig.user = process.env.DB_USER || 'postgres';
+    poolConfig.host = process.env.DB_HOST || 'localhost';
+    poolConfig.database = process.env.DB_NAME || 'networld';
+    poolConfig.password = process.env.DB_PASSWORD;
+    poolConfig.port = parseInt(process.env.DB_PORT) || 5432;
+    poolConfig.ssl = process.env.DB_HOST && process.env.DB_HOST !== 'localhost' ? { rejectUnauthorized: false } : false;
+}
+
+// Common pool options
+poolConfig.max = 20; // Maximum number of clients in the pool
+poolConfig.idleTimeoutMillis = 30000; // Close idle clients after 30 seconds
+poolConfig.connectionTimeoutMillis = 10000; // Return an error after 10 seconds if connection cannot be established
+poolConfig.keepAlive = true;
+poolConfig.keepAliveInitialDelayMillis = 10000;
+
+const pool = new Pool(poolConfig);
 
 // Test database connection and run migrations
 pool.connect(async (err, client, release) => {
