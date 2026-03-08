@@ -1,0 +1,17 @@
+CREATE TABLE shipments (
+    id SERIAL PRIMARY KEY,
+    tracking_number VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL,
+    origin VARCHAR(255) NOT NULL,
+    destination VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tracking_updates (
+    id SERIAL PRIMARY KEY,
+    shipment_id INT REFERENCES shipments(id) ON DELETE CASCADE,
+    status VARCHAR(50) NOT NULL,
+    location VARCHAR(255),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

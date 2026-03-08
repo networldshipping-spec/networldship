@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /about.html
+Disallow: /admin.html
+Disallow: /admin-script.js
+Disallow: /admin-styles.css
+Disallow: /inbox.html
+Disallow: /login.html
+Disallow: /uploads/
+
+Sitemap: https://networldship.com/sitemap.xml

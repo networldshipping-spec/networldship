@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox - Net World Ship</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <!-- Favicon / App icons -->
+    <link rel="icon" href="https://networldship.com/logo.png" type="image/png">
+    <link rel="shortcut icon" href="https://networldship.com/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://networldship.com/logo.png">
+    <style>
+        body, html {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        .inbox-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            height: calc(100vh - 280px);
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .inbox-container.show-messages {
+            grid-template-columns: 350px 1fr;
+        }
+
+        .conversations-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+        }
+
+        .conversation-item {
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .conversation-item:hover {
+            background: #f9fafb;
+        }
+
+        .conversation-item.active {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .conversation-item.unread {
+            background: #fefce8;
+            font-weight: 600;
+        }
+
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .conversation-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .conversation-time {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .conversation-tracking {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .conversation-preview {
+            font-size: 13px;
+            color: #6b7280;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .messages-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            border: 1px solid #e5e7eb;
+        }
+
+        .inbox-container.show-messages .messages-panel {
+            display: flex;
+        }
+
+        .messages-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .messages-header h2 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            color: #1f2937;
+        }
+
+        .messages-subheader {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .messages-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f9fafb;
+        }
+
+        .message-item {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-item.admin {
+            align-items: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message-item.admin .message-content {
+            background: #3b82f6;
+            color: white;
+            border-radius: 12px 12px 4px 12px;
+        }
+
+        .message-item.user .message-content {
+            background: white;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px 12px 12px 4px;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .message-sender {
+            font-weight: 600;
+        }
+
+        .messages-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .reply-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .reply-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .reply-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn-reply {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reply:hover {
+            background: #2563eb;
+        }
+
+        .btn-attach {
+            padding: 10px 20px;
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-attach:hover {
+            background: #4b5563;
+        }
+
+        .attachments-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .attachment-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #374151;
+        }
+
+        .attachment-chip .remove {
+            cursor: pointer;
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .message-attachments {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .attachment-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .attachment-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-badge.new {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.replied {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.urgent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .conversation-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        @media (max-width: 1024px) {
+            .inbox-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .inbox-container.show-messages .conversations-list {
+                display: none;
+            }
+
+            .conversations-list {
+                max-height: 400px;
+            }
+
+            .messages-panel {
+                min-height: 500px;
+            }
+
+            #backBtn {
+                display: inline-flex !important;
+            }
+
+            .search-box input {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .inbox-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+                padding: 12px 16px;
+            }
+
+            .inbox-controls {
+                width: 100%;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .search-box,
+            .filter-badge,
+            .search-box input {
+                width: 100%;
+            }
+
+            .conversation-item {
+                padding: 12px;
+            }
+
+            .messages-header {
+                padding: 12px;
+            }
+
+            .message-item {
+                padding: 10px;
+            }
+
+            .reply-form {
+                padding: 12px;
+            }
+
+            .reply-form textarea {
+                min-height: 80px;
+            }
+        }
+
+        /* Animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .inbox-header {
+            padding: 16px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inbox-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 16px 10px 40px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .filter-badge {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .filter-badge:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+        }
+
+        .filter-badge.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .unread-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .conversation-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #6b7280;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #2563eb;
+        }
+
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 968px) {
+            .inbox-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: calc(100vh - 160px);
+            }
+
+            .conversations-list {
+                height: 400px;
+                order: 2;
+            }
+
+            .messages-panel {
+                order: 1;
+                min-height: 500px;
+            }
+
+            .conversation-item {
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .inbox-container {
+                margin: 20px auto;
+                padding: 0 10px;
+            }
+
+            .page-header {
+                padding: 20px 10px;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .conversations-list {
+                height: 300px;
+            }
+
+            .messages-header h2 {
+                font-size: 1.2rem;
+            }
+
+            .messages-subheader {
+                font-size: 0.8rem;
+            }
+
+            .message-item {
+                padding: 12px;
+            }
+
+            .reply-textarea {
+                min-height: 80px;
+            }
+
+            .reply-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .btn-reply,
+            .btn-attach {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Net World Ship</span>
+            </div>
+            <p class="admin-label">Admin Panel</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="admin.html#dashboard" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="admin.html#shipments" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span>Shipments</span>
+            </a>
+            <a href="admin.html#tracking" class="nav-item">
+                <i class="fas fa-route"></i>
+                <span>Tracking Events</span>
+            </a>
+            <a href="admin.html#create" class="nav-item">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Shipment</span>
+            </a>
+            <a href="admin.html#receipts" class="nav-item">
+                <i class="fas fa-receipt"></i>
+                <span>Receipts</span>
+            </a>
+            <a href="admin.html#contact" class="nav-item">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+            <a href="inbox.html" class="nav-item active">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+                <span class="chat-badge" id="chatNavBadge" style="display: none; background: #ef4444; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">0</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <button onclick="handleLogout()" class="btn-logout" style="width: 100%; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+            <a href="index.html" class="btn-back" style="margin-top: 10px;">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Website</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1>📧 Customer Inbox</h1>
+            <div class="user-menu">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="usernameDisplay">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="content-section active">
+            <div class="inbox-header">
+                <div>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                        Manage all customer conversations and inquiries
+                    </p>
+                </div>
+                <div class="inbox-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchConversations" placeholder="Search messages...">
+                    </div>
+                    <select id="filterStatus" class="filter-badge">
+                        <option value="all">All Messages</option>
+                        <option value="unread">Unread Only</option>
+                        <option value="replied">Replied</option>
+                    </select>
+                    <button onclick="refreshConversations()" class="filter-badge" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="inbox-container">
+            <!-- Conversations List -->
+            <div class="conversations-list" id="conversationsList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading conversations...
+                </div>
+            </div>
+
+            <!-- Messages Panel -->
+            <div class="messages-panel">
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <h3>Select a conversation</h3>
+                    <p>Choose a conversation from the left to view messages</p>
+                </div>
+            </div>
+        </div>
+        </section>
+    </main>
+
+    <script>
+        let conversations = [];
+        let currentConversation = null;
+
+        // Logout function
+        function handleLogout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'login.html';
+        }
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        mobileMenuToggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        });
+
+        sidebarOverlay?.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Load conversations on page load
+        async function loadConversations() {
+            try {
+                const response = await fetch('/api/conversations');
+                const data = await response.json();
+                conversations = data;
+                renderConversations();
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+                document.getElementById('conversationsList').innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #ef4444;">
+                        Error loading conversations
+                    </div>
+                `;
+            }
+        }
+
+        // Render conversations list
+        function renderConversations() {
+            const container = document.getElementById('conversationsList');
+            
+            if (conversations.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                        <h3 style="margin: 0 0 8px 0; color: #6b7280;">No messages yet</h3>
+                        <p style="margin: 0; font-size: 13px; color: #9ca3af;">Customer replies will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group conversations by tracking number or email (for contact form messages)
+            const groupedConversations = conversations.reduce((acc, msg) => {
+                const groupKey = msg.tracking_number || `contact_${msg.sender_email}`;
+                if (!acc[groupKey]) {
+                    acc[groupKey] = {
+                        tracking_number: msg.tracking_number,
+                        shipment_id: msg.shipment_id,
+                        latest_message: msg,
+                        unread_count: 0,
+                        messages: []
+                    };
+                }
+                acc[groupKey].messages.push(msg);
+                if (!msg.is_read && msg.sender_type !== 'admin') {
+                    acc[groupKey].unread_count++;
+                }
+                // Update latest message if newer
+                if (new Date(msg.created_at) > new Date(acc[groupKey].latest_message.created_at)) {
+                    acc[groupKey].latest_message = msg;
+                }
+                return acc;
+            }, {});
+
+            const conversationGroups = Object.values(groupedConversations)
+                .sort((a, b) => new Date(b.latest_message.created_at) - new Date(a.latest_message.created_at));
+
+            container.innerHTML = conversationGroups.map(group => {
+                const msg = group.latest_message;
+                const isUnread = group.unread_count > 0;
+                const groupKey = msg.tracking_number || `contact_${msg.sender_email}`;
+                const isActive = currentConversation?.groupKey === groupKey;
+                
+                return `
+                    <div class="conversation-item ${isUnread ? 'unread' : ''} ${isActive ? 'active' : ''}" 
+                         onclick="loadConversationByKey('${groupKey.replace(/'/g, "\\'")}')">  
+                        <div class="conversation-header">
+                            <span class="conversation-name">
+                                ${msg.sender_name}
+                                ${isUnread ? `<span class="unread-badge">${group.unread_count}</span>` : ''}
+                            </span>
+                            <span class="conversation-time">${formatTime(msg.created_at)}</span>
+                        </div>
+                        <div class="conversation-tracking">${msg.tracking_number ? `📦 ${msg.tracking_number}` : `✉️ ${msg.sender_email}`}</div>
+                        <div class="conversation-preview">${msg.message}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load specific conversation by key (tracking number or email)
+        async function loadConversationByKey(groupKey) {
+            try {
+                // Find messages for this group
+                const groupMessages = conversations.filter(msg => {
+                    const msgKey = msg.tracking_number || `contact_${msg.sender_email}`;
+                    return msgKey === groupKey;
+                });
+                
+                if (groupMessages.length === 0) return;
+                
+                currentConversation = { 
+                    groupKey: groupKey,
+                    tracking_number: groupMessages[0].tracking_number,
+                    sender_email: groupMessages[0].sender_email,
+                    messages: groupMessages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                };
+                
+                // Show messages panel
+                document.querySelector('.inbox-container').classList.add('show-messages');
+                
+                renderMessages();
+
+                // Mark as read
+                const unreadMessages = groupMessages.filter(msg => !msg.is_read && msg.sender_type !== 'admin');
+                for (const msg of unreadMessages) {
+                    await fetch(`/api/conversations/${msg.id}/mark-read`, { method: 'POST' });
+                }
+                
+                await loadConversations(); // Refresh list
+                await updateChatBadge(); // Update badge count
+            } catch (error) {
+                console.error('Error loading conversation:', error);
+            }
+        }
+
+        // Legacy function for backwards compatibility
+        async function loadConversation(trackingNumber) {
+            await loadConversationByKey(trackingNumber);
+        }
+
+        // Render messages
+        function renderMessages() {
+            const messagesPanel = document.querySelector('.messages-panel');
+            const messages = currentConversation.messages;
+            
+            messagesPanel.innerHTML = `
+                <div class="messages-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button onclick="closeConversation()" class="action-btn" style="display: none;" id="backBtn">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <div>
+                            <h2 style="margin: 0;">Conversation: ${messages[0]?.sender_name || 'Unknown'}</h2>
+                            <div class="messages-subheader">${currentConversation.tracking_number ? `📦 Tracking: ${currentConversation.tracking_number}` : `✉️ Email: ${currentConversation.sender_email}`}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="messages-body" id="messagesBody">
+                    ${messages.map(msg => `
+                        <div class="message-item ${msg.sender_type === 'admin' ? 'admin' : 'user'}">
+                            <div class="message-content">${msg.message}</div>
+                            ${msg.attachments && msg.attachments.length > 0 ? `
+                                <div class="message-attachments">
+                                    ${msg.attachments.map(att => `
+                                        <a href="/api/attachments/${att.path}" 
+                                           class="attachment-link" 
+                                           download="${att.filename}"
+                                           target="_blank">
+                                            📎 ${att.filename} (${formatFileSize(att.size)})
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            <div class="message-meta">
+                                <span class="message-sender">${msg.sender_name}</span>
+                                <span>•</span>
+                                <span>${formatDateTime(msg.created_at)}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="messages-footer">
+                    <form class="reply-form" onsubmit="sendReply(event)" id="replyForm">
+                        <textarea 
+                            class="reply-textarea" 
+                            placeholder="Type your reply..."
+                            id="replyText"
+                            required
+                        ></textarea>
+                        <div class="attachments-preview" id="attachmentsPreview"></div>
+                        <div class="reply-actions">
+                            <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelect(event)">
+                            <button type="button" class="btn-attach" onclick="document.getElementById('fileInput').click()">📎 Attach Files</button>
+                            <button type="submit" class="btn-reply">Send Reply</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            // Scroll to bottom
+            const messagesBody = document.getElementById('messagesBody');
+            messagesBody.scrollTop = messagesBody.scrollHeight;
+        }
+
+        // File selection state
+        let selectedFiles = [];
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            selectedFiles = [...selectedFiles, ...files];
+            updateAttachmentsPreview();
+        }
+
+        // Remove file from selection
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateAttachmentsPreview();
+        }
+
+        // Update attachments preview
+        function updateAttachmentsPreview() {
+            const preview = document.getElementById('attachmentsPreview');
+            if (selectedFiles.length === 0) {
+                preview.innerHTML = '';
+                return;
+            }
+
+            preview.innerHTML = selectedFiles.map((file, index) => `
+                <div class="attachment-chip">
+                    📎 ${file.name} (${formatFileSize(file.size)})
+                    <span class="remove" onclick="removeFile(${index})">×</span>
+                </div>
+            `).join('');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Send reply with attachments
+        async function sendReply(event) {
+            event.preventDefault();
+            const replyText = document.getElementById('replyText').value.trim();
+            
+            if (!replyText) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('tracking_number', currentConversation.tracking_number || '');
+                formData.append('sender_email', currentConversation.sender_email || '');
+                formData.append('message', replyText);
+                
+                // Add attachments
+                selectedFiles.forEach(file => {
+                    formData.append('attachments', file);
+                });
+
+                const response = await fetch('/api/conversations/reply', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    document.getElementById('replyText').value = '';
+                    document.getElementById('fileInput').value = '';
+                    selectedFiles = [];
+                    updateAttachmentsPreview();
+                    await loadConversations();
+                    await loadConversationByKey(currentConversation.groupKey);
+                    await updateChatBadge(); // Update badge count
+                } else {
+                    alert('Failed to send reply');
+                }
+            } catch (error) {
+                console.error('Error sending reply:', error);
+                alert('Error sending reply');
+            }
+        }
+
+        // Format time (e.g., "2 hours ago")
+        // Close conversation (go back to list)
+        function closeConversation() {
+            document.querySelector('.inbox-container').classList.remove('show-messages');
+            currentConversation = null;
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 0) return `${days}d ago`;
+            if (hours > 0) return `${hours}h ago`;
+            if (minutes > 0) return `${minutes}m ago`;
+            return 'Just now';
+        }
+
+        // Format full date time
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/check');
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/login.html';
+                return false;
+            }
+        }
+
+        // Search conversations
+        let searchTimeout;
+        document.getElementById('searchConversations')?.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = e.target.value.toLowerCase();
+                filterConversations(searchTerm, document.getElementById('filterStatus').value);
+            }, 300);
+        });
+
+        // Filter by status
+        document.getElementById('filterStatus')?.addEventListener('change', (e) => {
+            const searchTerm = document.getElementById('searchConversations').value.toLowerCase();
+            filterConversations(searchTerm, e.target.value);
+        });
+
+        // Filter conversations function
+        function filterConversations(searchTerm = '', statusFilter = 'all') {
+            const container = document.getElementById('conversationsList');
+            const items = container.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const isUnread = item.classList.contains('unread');
+                
+                let matchesSearch = !searchTerm || text.includes(searchTerm);
+                let matchesStatus = statusFilter === 'all' || 
+                                   (statusFilter === 'unread' && isUnread) ||
+                                   (statusFilter === 'replied' && !isUnread);
+                
+                item.style.display = (matchesSearch && matchesStatus) ? 'block' : 'none';
+            });
+        }
+
+        // Refresh conversations
+        function refreshConversations() {
+            const btn = event.target.closest('button');
+            const icon = btn.querySelector('i');
+            icon.style.animation = 'spin 1s linear';
+            loadConversations().then(() => {
+                setTimeout(() => {
+                    icon.style.animation = '';
+                }, 1000);
+            });
+        }
+
+        // Update chat badge
+        async function updateChatBadge() {
+            try {
+                const response = await fetch('/api/conversations/unread/count');
+                const data = await response.json();
+                const count = data.count || 0;
+                
+                const chatNavBadge = document.getElementById('chatNavBadge');
+                if (chatNavBadge) {
+                    chatNavBadge.textContent = count;
+                    chatNavBadge.style.display = count > 0 ? 'inline-block' : 'none';
+                }
+            } catch (error) {
+                console.error('Error updating chat badge:', error);
+            }
+        }
+
+        // Initialize
+        (async () => {
+            const isAuthenticated = await checkAuth();
+            if (!isAuthenticated) return;
+            
+            loadConversations();
+            updateChatBadge();
+            
+            // Refresh every 30 seconds
+            setInterval(() => {
+                loadConversations();
+                updateChatBadge();
+            }, 30000);
+        })();
+    </script>
+</body>
+</html>

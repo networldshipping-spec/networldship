@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net World Ship - Logo Preview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+            font-size: 2rem;
+        }
+
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-title {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .logo-container {
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Logo Styles */
+        .logo-square {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-square i {
+            font-size: 5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-square .text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-square .subtext {
+            font-size: 0.7rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+            letter-spacing: 2px;
+        }
+
+        .logo-circle {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-circle i {
+            font-size: 5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-circle .text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-circle .subtext {
+            font-size: 0.65rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+            letter-spacing: 1.5px;
+        }
+
+        .logo-horizontal {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem 2.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .logo-horizontal i {
+            font-size: 3.5rem;
+        }
+
+        .logo-horizontal .text-group {
+            text-align: left;
+        }
+
+        .logo-horizontal .text {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .logo-horizontal .subtext {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            letter-spacing: 2px;
+        }
+
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: white;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .info h3 {
+            margin-bottom: 1rem;
+            color: #60a5fa;
+        }
+
+        .info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Net World Ship - Logo Options</h1>
+        
+        <div class="logo-grid">
+            <!-- Square Logo -->
+            <div class="logo-card">
+                <div class="logo-title">Square Logo (For WhatsApp Profile)</div>
+                <div class="logo-container">
+                    <div class="logo-square" id="logo-square">
+                        <i class="fas fa-shipping-fast"></i>
+                        <div class="text">NWS</div>
+                        <div class="subtext">NET WORLD SHIP</div>
+                    </div>
+                </div>
+                <button class="download-btn" onclick="downloadLogo('logo-square', 'NetWorldShip-Square-Logo.png')">
+                    <i class="fas fa-download"></i>
+                    Download Square
+                </button>
+            </div>
+
+            <!-- Circle Logo -->
+            <div class="logo-card">
+                <div class="logo-title">Circle Logo (Alternative Profile Picture)</div>
+                <div class="logo-container">
+                    <div class="logo-circle" id="logo-circle">
+                        <i class="fas fa-shipping-fast"></i>
+                        <div class="text">NWS</div>
+                        <div class="subtext">LOGISTICS</div>
+                    </div>
+                </div>
+                <button class="download-btn" onclick="downloadLogo('logo-circle', 'NetWorldShip-Circle-Logo.png')">
+                    <i class="fas fa-download"></i>
+                    Download Circle
+                </button>
+            </div>
+
+            <!-- Horizontal Logo -->
+            <div class="logo-card">
+                <div class="logo-title">Horizontal Logo (For Website Header)</div>
+                <div class="logo-container">
+                    <div class="logo-horizontal" id="logo-horizontal">
+                        <i class="fas fa-shipping-fast"></i>
+                        <div class="text-group">
+                            <div class="text">Net World Ship</div>
+                            <div class="subtext">GLOBAL LOGISTICS</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="download-btn" onclick="downloadLogo('logo-horizontal', 'NetWorldShip-Horizontal-Logo.png')">
+                    <i class="fas fa-download"></i>
+                    Download Horizontal
+                </button>
+            </div>
+        </div>
+
+        <div class="info">
+            <h3><i class="fas fa-info-circle"></i> How to Download and Use</h3>
+            <ul>
+                <li><strong>For WhatsApp Profile Picture:</strong> Use the Square or Circle logo (250x250px)</li>
+                <li><strong>For Website:</strong> Use the Horizontal logo for your header</li>
+                <li><strong>To Download:</strong> Click the download button below each logo</li>
+                <li><strong>Format:</strong> PNG with transparent background support</li>
+                <li><strong>Recommended:</strong> The Circle logo works best for WhatsApp profile pictures</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        async function downloadLogo(elementId, filename) {
+            const element = document.getElementById(elementId);
+            
+            try {
+                // Create canvas from element
+                const canvas = await html2canvas(element, {
+                    backgroundColor: null,
+                    scale: 2, // Higher quality
+                    logging: false
+                });
+                
+                // Convert to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    
+                    // Show success message
+                    alert('Logo downloaded successfully! Check your Downloads folder.');
+                }, 'image/png');
+                
+            } catch (error) {
+                console.error('Error generating logo:', error);
+                alert('Error downloading logo. Please try again.');
+            }
+        }
+
+        // Alternative: Screenshot instructions
+        console.log('Logo Preview Page Loaded');
+        console.log('Click the download buttons to save the logos as PNG files');
+    </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Net World Ship - Track your shipments in real-time with our advanced global shipping and logistics platform. International package delivery, freight forwarding, and express shipping services worldwide.">
+    <meta name="keywords" content="Net World Ship, networldship, shipping tracking, package tracking, international shipping, logistics, freight forwarding, express delivery, cargo shipping, shipment tracking, global shipping company">
+    <meta name="author" content="Net World Ship">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://networldship.com/">
+    <meta property="og:title" content="Net World Ship - Global Shipping & Package Tracking">
+    <meta property="og:description" content="Track your shipments in real-time with Net World Ship. Trusted international shipping and logistics services to 180+ countries.">
+    <meta property="og:site_name" content="Net World Ship">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://networldship.com/">
+    <meta property="twitter:title" content="Net World Ship - Global Shipping & Package Tracking">
+    <meta property="twitter:description" content="Track your shipments in real-time with Net World Ship. Trusted international shipping and logistics services to 180+ countries.">
+    
+    <title>Net World Ship - Global Shipping & Real-Time Package Tracking | International Logistics</title>
+    <link rel="canonical" href="https://networldship.com/">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon / App icons -->
+    <link rel="icon" href="https://networldship.com/logo.png" type="image/png">
+    <link rel="shortcut icon" href="https://networldship.com/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://networldship.com/logo.png">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Net World Ship",
+        "alternateName": "NetWorldShip",
+        "url": "https://networldship.com",
+        "logo": "https://networldship.com/logo.png",
+        "description": "Net World Ship is a leading global shipping and logistics company providing real-time package tracking and international delivery services to over 180 countries worldwide.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "US"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+1-800-NETSHIP",
+            "contactType": "customer service",
+            "email": "support@networldship.com",
+            "availableLanguage": ["English", "Spanish", "French", "German", "Chinese", "Hindi", "Greek"],
+            "whatsApp": "+16562363199"
+        },
+        "sameAs": [
+            "https://www.facebook.com/networldship",
+            "https://twitter.com/networldship",
+            "https://www.linkedin.com/company/networldship"
+        ],
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "50000"
+        }
+    }
+    </script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            try {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'en,es,pt,fr,zh-CN,hi,el',
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                    autoDisplay: false,
+                    multilanguagePage: true
+                }, 'google_translate_element');
+                console.log('Google Translate initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Google Translate:', error);
+            }
+        }
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+    <!-- Hidden Google Translate Element -->
+    <div id="google_translate_element" style="display: none;"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Net World Ship</span>
+            </div>
+            <nav class="nav">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="#track" class="nav-link">Track</a>
+                <a href="#services" class="nav-link">Services</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <button class="language-btn" id="languageBtn">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">EN</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <a href="#" class="language-option" data-lang="en">English</a>
+                        <a href="#" class="language-option" data-lang="es">Español</a>
+                        <a href="#" class="language-option" data-lang="pt">Português</a>
+                        <a href="#" class="language-option" data-lang="fr">Français</a>
+                        <a href="#" class="language-option" data-lang="zh-CN">中文</a>
+                        <a href="#" class="language-option" data-lang="hi">हिन्दी</a>
+                        <a href="#" class="language-option" data-lang="el">Ελληνικά</a>
+                    </div>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Track Your Shipments <span class="gradient-text">In Real-Time</span></h1>
+                <p class="hero-subtitle">Experience seamless package tracking with our advanced logistics platform</p>
+                
+                <div class="search-box">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="trackingInput" placeholder="Enter tracking number (e.g., TRK123456789)" class="search-input">
+                    </div>
+                    <button class="btn-primary" id="trackBtn">
+                        <span>Track Shipment</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" data-target="50000">0</h3>
+                            <p class="stat-label">Daily Shipments</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" data-target="150">0</h3>
+                            <p class="stat-label">Countries</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" data-target="99.9">0</h3>
+                            <p class="stat-label">% On-Time</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-background">
+            <div class="floating-box box-1"></div>
+            <div class="floating-box box-2"></div>
+            <div class="floating-box box-3"></div>
+        </div>
+    </section>
+
+    <!-- Tracking Results Section -->
+    <section class="tracking-section" id="track">
+        <div class="container">
+            <div id="trackingResults" class="tracking-results"></div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="services">
+        <div class="container">
+            <h2 class="section-title">Why Choose Net World Ship?</h2>
+            <p class="section-subtitle">Experience the future of logistics management</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Real-Time Updates</h3>
+                    <p>Get instant notifications about your shipment status at every step of the journey</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure Tracking</h3>
+                    <p>Advanced encryption ensures your shipment data remains private and protected</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3>Live Location</h3>
+                    <p>Track your package's exact location with GPS-enabled real-time mapping</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Our dedicated team is always ready to assist you with any tracking inquiries</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Ready</h3>
+                    <p>Access tracking information seamlessly across all your devices</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Analytics</h3>
+                    <p>Detailed insights and reports on all your shipping activities</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h2>Get In Touch</h2>
+                    <p>Have questions? We're here to help you with all your shipping needs.</p>
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h4>Phone</h4>
+                                <p>+1 (800) 999-0000</p>
+                            </div>
+                        </div>
+                        <div class="contact-method">
+                            <i class="fab fa-whatsapp"></i>
+                            <div>
+                                <h4>WhatsApp</h4>
+                                <p><a href="https://wa.me/16562363199" target="_blank" style="color: inherit; text-decoration: none;">+1 (656) 236-3199</a></p>
+                            </div>
+                        </div>
+                        <div class="contact-method">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p>support@networldship.com</p>
+                            </div>
+                        </div>
+                        <div class="contact-method">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Address</h4>
+                                <p>12 Harbor Boulevard, Long Beach, CA 90802</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
+                    <input type="text" name="tracking_number" placeholder="Tracking Number (Optional)">
+                    <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+                    <button type="submit" class="btn-primary">
+                        <span>Send Message</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <i class="fas fa-shipping-fast"></i>
+                        <span>Net World Ship</span>
+                    </div>
+                    <p>Your trusted partner in global logistics and shipment tracking.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#track">Track Package</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Express Delivery</a></li>
+                        <li><a href="#">International Shipping</a></li>
+                        <li><a href="#">Warehouse Solutions</a></li>
+                        <li><a href="#">Supply Chain</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Newsletter</h4>
+                    <p>Subscribe for updates and tracking tips</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Enter your email">
+                        <button type="submit"><i class="fas fa-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Net World Ship. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
