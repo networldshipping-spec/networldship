@@ -43,6 +43,12 @@ body {
     position: relative;
 }
 
+/* Homepage override: lighter, neutral background for index */
+.index-page {
+    background-color: #f4f8fb;
+    color: #0f172a;
+}
+
 * {
     max-width: 100%;
 }
