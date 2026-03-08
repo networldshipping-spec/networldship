@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
-  <rect rx="16" width="120" height="120" fill="#0b5cff"/>
-  <g fill="#fff" transform="translate(20,28)">
-    <path d="M10 6h20v6H10z"/>
-    <path d="M10 18h30v6H10z"/>
-    <path d="M10 30h24v6H10z"/>
-  </g>
-</svg>
