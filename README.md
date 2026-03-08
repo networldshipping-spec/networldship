@@ -137,7 +137,7 @@ nettrack/
 ├── server.js               # Express backend server
 ├── database-setup.sql      # Database schema and seed data
 ├── package.json            # Dependencies
-└── README.md              # Documentation
+└── README.md               # Documentation
 ```
 
 ## 🔐 Security Note
