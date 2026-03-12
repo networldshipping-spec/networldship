@@ -211,6 +211,20 @@ nettrack/
 - Mobile app
 - Multi-language support
 
+## 🔁 Deployment & DNS
+
+- DNS (authoritative): apex A -> 213.207.159.108; `www` CNAME -> networldship.onrender.com; TXT @ -> `v=spf1 a mx ~all`.
+- Recommended: Add `www.networldship.com` in the Render dashboard as a custom domain (point `www` CNAME to `networldship.onrender.com`) so Render provisions TLS automatically. For the zone apex, either keep the A record to the server IP and add a URL Redirect from `@` to `https://www.networldship.com`, or follow Render's instructions for using an ALIAS/ANAME if you move the apex to Render.
+- After updating DNS, flush local DNS cache (`ipconfig /flushdns`) and verify propagation with `Resolve-DnsName -Type A networldship.com` or `dig` against authoritative nameservers.
+- Note: If the apex IP (213.207.159.108) should serve content, ensure the web server is running and ports 80/443 are open.
+
+## 🪄 Frontend Styling Update
+
+- The homepage background (`.index-page` in `styles.css`) was updated to an animated layered gradient for a modern look. This change was committed with message: "Style: animated homepage background".
+
+## 🧾 Changelog
+
+- 2026-03-13: Fixed DNS `www` CNAME typo and pointed `www` to Render; added TXT SPF record at root. Updated homepage background animation and pushed changes to the repository.
 ## 📄 License
 
 ISC License
