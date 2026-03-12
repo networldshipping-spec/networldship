@@ -43,10 +43,24 @@ body {
     position: relative;
 }
 
-/* Homepage override: lighter, neutral background for index */
+/* Homepage override: animated, special background for index */
 .index-page {
-    background-color: #f4f8fb;
+    /* layered soft radial highlights over a gentle gradient */
+    background: radial-gradient(circle at 10% 20%, rgba(14,165,233,0.15), transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(139,92,246,0.12), transparent 20%),
+                linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%);
     color: #0f172a;
+    background-attachment: fixed;
+    background-blend-mode: screen;
+    /* make the radial layers animate subtly to feel "special" */
+    background-size: 200% 200%, 200% 200%, 100% 100%;
+    animation: indexBgShift 12s ease-in-out infinite;
+}
+
+@keyframes indexBgShift {
+    0% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+    50% { background-position: 100% 100%, 0% 0%, 50% 50%; }
+    100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
 }
 
 * {
