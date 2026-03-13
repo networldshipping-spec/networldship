@@ -26,15 +26,31 @@ const EMAIL_CONFIG = {
 let emailTransporter = null;
 if (EMAIL_CONFIG.user && EMAIL_CONFIG.pass) {
     try {
+        // Use explicit SMTP configuration for better control (works well with Gmail app passwords)
+        const smtpHost = process.env.EMAIL_HOST || (EMAIL_CONFIG.service === 'gmail' ? 'smtp.gmail.com' : undefined);
+        const smtpPort = process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : (EMAIL_CONFIG.service === 'gmail' ? 465 : 587);
+        const smtpSecure = process.env.EMAIL_SECURE ? process.env.EMAIL_SECURE === 'true' : (EMAIL_CONFIG.service === 'gmail');
+
         emailTransporter = nodemailer.createTransport({
-            service: EMAIL_CONFIG.service,
+            host: smtpHost,
+            port: smtpPort,
+            secure: smtpSecure,
             auth: {
                 user: EMAIL_CONFIG.user,
                 pass: EMAIL_CONFIG.pass
-            }
+            },
+            pool: true,
+            maxConnections: 5,
+            connectionTimeout: 60000,
+            greetingTimeout: 30000,
+            socketTimeout: 60000,
+            tls: { rejectUnauthorized: false }
         });
-        console.log('📧 Email service configured');
-        console.log(`   User: ${EMAIL_CONFIG.user}`);
+
+        // Verify transporter at startup to catch auth/connectivity errors early
+        emailTransporter.verify()
+            .then(() => console.log('📧 Email service configured and verified:', EMAIL_CONFIG.user))
+            .catch(err => console.warn('⚠️  Email transporter verification failed:', err && err.message ? err.message : err));
     } catch (error) {
         console.log('⚠️  Email transporter creation failed:', error.message);
     }
@@ -591,11 +607,11 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
                     html: emailHTML
                 };
                 
-                // Send with 30 second timeout
+                // Send with increased 60 second timeout
                 await Promise.race([
                     emailTransporter.sendMail(mailOptions),
                     new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Email timeout after 30 seconds')), 30000)
+                        setTimeout(() => reject(new Error('Email timeout after 60 seconds')), 60000)
                     )
                 ]);
                 console.log(`✅ Email sent successfully to ${recipient_email}`);
