@@ -619,12 +619,12 @@ app.post('/api/notifications/send', requireAuth, async (req, res) => {
                 console.log(`Tracking: ${tracking_number}`);
                 console.log(`Receipt included: ${receipt_html ? 'Yes (Shipment Creation)' : 'No (Status Update)'}`);
                 
-                // Store in conversations table as admin message
+                // Store in conversations table as admin message (include tracking and recipient info so it appears in chats)
                 await pool.query(
                     `INSERT INTO conversations 
-                    (shipment_id, sender_type, message) 
-                    VALUES ($1, 'admin', $2)`,
-                    [shipment_id, message]
+                    (shipment_id, tracking_number, sender_email, sender_type, subject, message, is_read) 
+                    VALUES ($1, $2, $3, 'admin', $4, $5, true)`,
+                    [shipment_id, tracking_number || null, recipient_email || EMAIL_CONFIG.user, subject || null, message]
                 );
                 
                 const responseMessage = receipt_html 
