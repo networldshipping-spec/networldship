@@ -1395,6 +1395,45 @@ html {
         max-height: 90vh;
         overflow-y: auto;
     }
+
+    /* Mobile receipt layout fixes */
+    .receipt-content {
+        padding: 1rem;
+        border-radius: 6px;
+    }
+
+    .receipt-title {
+        font-size: 1.25rem;
+        letter-spacing: 1px;
+    }
+
+    .receipt-details-grid {
+        gap: 1rem;
+    }
+
+    .receipt-total-section {
+        justify-content: center;
+    }
+
+    .receipt-total-box {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .receipt-table th,
+    .receipt-table td {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .receipt-logo {
+        align-items: center;
+        text-align: center;
+    }
+
+    .receipt-company-info {
+        text-align: center;
+    }
     
     .modal-large {
         width: 95%;
