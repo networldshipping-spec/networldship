@@ -1639,6 +1639,37 @@ html {
     .contact-recipients {
         grid-template-columns: 1fr;
     }
+
+    /* Mobile: receipt company info and header improvements */
+    .receipt-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .receipt-company-info {
+        text-align: center;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-top: 0.5rem;
+    }
+
+    .receipt-logo-icon {
+        font-size: 2rem;
+    }
+
+    .receipt-logo-text {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .receipt-logo-tagline {
+        display: none;
+    }
+
+    .receipt-footer-text {
+        font-size: 0.85rem;
+    }
 }
 
 @media print {
